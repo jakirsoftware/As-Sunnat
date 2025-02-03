@@ -1,5 +1,7 @@
 //https://chatgpt.com/c/67a08049-2c28-8003-aed4-9c9e40bf4bbf
-//https://script.google.com/macros/s/AKfycbx0EQMYF-eAXHe0BuGPe6rH8RTOR3ClE_kbTQ36SsPJFQePTix2yJKTOAFKYDELb5R0/exec
+//https://script.google.com/macros/s/AKfycbwufvGNhMqTpEaP9dIQ6YMipBtE44HvhJirIm5ziFkJHPV9RM_ZjnDfP0mTke8YK_yD/exec
+
+
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('index'); // Adjust if your HTML is in a different file
 }
@@ -22,7 +24,6 @@ function checkReferenceNumber(reference) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Sheet2');
   var data = sheet.getRange('B2:B').getValues();  // Get data from column B in Sheet2
   
-  // Check if the reference number exists in column B
   for (var i = 0; i < data.length; i++) {
     if (data[i][0] == reference) {
       return true;  // Valid reference number
@@ -32,7 +33,7 @@ function checkReferenceNumber(reference) {
   return false;  // Invalid reference number
 }
 
-function checkPhoneAndSubmit(id, name, address, phone, area, reference, latitude, longitude) {
+function checkPhoneAndSubmit(id, name, address, phone, area, reference, time, latitude, longitude) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Sheet1');
   var data = sheet.getDataRange().getValues();
   
@@ -43,17 +44,17 @@ function checkPhoneAndSubmit(id, name, address, phone, area, reference, latitude
     }
   }
 
-  // If phone is unique, append new entry with ID, area, reference, latitude, and longitude
-  sheet.appendRow([id, name, address, phone, area, reference, latitude, longitude]);
+  // Append new row with time included
+  sheet.appendRow([id, name, address, phone, area, reference, time, latitude, longitude]);
   return 'success';
 }
--------------------------------------
+------------------------------
 <!DOCTYPE html>
 <html>
 <head>
   <title>Entry Form</title>
   <style>
-    #latitude, #longitude, #id {
+    #latitude, #longitude, #id, #time {
       display: none;
     }
   </style>
@@ -78,8 +79,9 @@ function checkPhoneAndSubmit(id, name, address, phone, area, reference, latitude
     <label for="reference">Reference Number:</label>
     <input type="number" id="reference" name="reference" required><br><br>
     
-    <!-- Hidden Latitude, Longitude, and ID fields -->
+    <!-- Hidden Fields for ID, Time, Latitude, Longitude -->
     <input type="text" id="id" name="id" readonly><br>
+    <input type="text" id="time" name="time" readonly><br>
     <input type="text" id="latitude" name="latitude" readonly><br>
     <input type="text" id="longitude" name="longitude" readonly><br><br>
     
@@ -87,7 +89,14 @@ function checkPhoneAndSubmit(id, name, address, phone, area, reference, latitude
   </form>
 
   <script>
-    // Load area options and check reference when the page is loaded
+    // Function to get current date-time in UTC+6
+    function getCurrentTime() {
+      let now = new Date();
+      now.setHours(now.getHours() + 6); // Convert to UTC+6
+      return now.toISOString().slice(0, 19).replace("T", " "); // Format: YYYY-MM-DD HH:MM:SS
+    }
+
+    // Load area options and set fields on page load
     window.onload = function() {
       google.script.run.withSuccessHandler(function(areas) {
         var areaSelect = document.getElementById('area');
@@ -110,48 +119,54 @@ function checkPhoneAndSubmit(id, name, address, phone, area, reference, latitude
           alert("Geolocation is not supported by this browser.");
         }
 
-        // Auto-generate a unique ID using the current timestamp
-        var uniqueId = 'ID-' + new Date().getTime();  // e.g., ID-1683837948123
-        document.getElementById('id').value = uniqueId;
+        // Auto-generate a unique ID using timestamp
+        document.getElementById('id').value = 'ID-' + new Date().getTime();
 
       }).getAreas();
     };
 
     document.getElementById('entryForm').addEventListener('submit', function(e) {
       e.preventDefault();
+      document.getElementById('time').value = getCurrentTime(); // Set current UTC+6 time before submission
+
       const id = document.getElementById('id').value;
       const name = document.getElementById('name').value;
       const address = document.getElementById('address').value;
       const phone = document.getElementById('phone').value;
       const area = document.getElementById('area').value;
       const reference = document.getElementById('reference').value;
+      const time = document.getElementById('time').value;
       const latitude = document.getElementById('latitude').value;
       const longitude = document.getElementById('longitude').value;
-      
-      // Check if the reference number matches any value in 'Sheet2'!B2:B
-      google.script.run
-        .withSuccessHandler(function(isValidReference) {
-          if (!isValidReference) {
-            alert("Invalid Reference Number.");
-            return;
+
+      // Check if the reference number matches in Sheet2
+      google.script.run.withSuccessHandler(function(isValidReference) {
+        if (!isValidReference) {
+          alert("Invalid Reference Number.");
+          return;
+        }
+        
+        google.script.run.withSuccessHandler(function(response) {
+          if(response === 'success') {
+            alert('Entry successfully added!');
+            document.getElementById('entryForm').reset(); // Clear the form fields
+          } else {
+            alert('Phone number already exists!');
           }
-          
-          google.script.run
-            .withSuccessHandler(function(response) {
-              if(response === 'success') {
-                alert('Entry successfully added!');
-                document.getElementById('entryForm').reset(); // Clear the form fields
-              } else {
-                alert('Phone number already exists!');
-              }
-            })
-            .withFailureHandler(function(error) {
-              alert('Error: ' + error.message);
-            })
-            .checkPhoneAndSubmit(id, name, address, phone, area, reference, latitude, longitude);
-        })
-        .checkReferenceNumber(reference);
+        }).withFailureHandler(function(error) {
+          alert('Error: ' + error.message);
+        }).checkPhoneAndSubmit(id, name, address, phone, area, reference, time, latitude, longitude);
+      }).checkReferenceNumber(reference);
     });
   </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
