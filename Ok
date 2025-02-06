@@ -20,8 +20,8 @@ function getTitles() {
 
 // Check if Reference exists in Extra!B2:B
 function referenceExists(reference) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Extra");
-  var references = sheet.getRange("B2:B").getValues();
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Member");
+  var references = sheet.getRange("G2:G").getValues();
   for (var i = 0; i < references.length; i++) {
     if (references[i][0] == reference) {
       return true;
@@ -60,7 +60,7 @@ function submitData(data) {
   sheet.appendRow([data.reference, data.name, data.phone, data.address, data.title, time]);
   return "Member added successfully!";
 }
-------------------------------------------------------
+------------------------------------------
 <!DOCTYPE html>
 <html>
   <head>
@@ -167,7 +167,7 @@ function submitData(data) {
     <br style="top:NaNpx;"><br style="top:NaNpx;">
 <input type="text" id="time" readonly required style="width:150px;position:absolute;left:170px;top:322px;height:23px;">
     <br style="top:NaNpx;"><br style="top:NaNpx;">
-<input type="text" id="reference" required style="position:absolute;left:8px;top:183px;width:150px;height:23px;">
+<input type="number" id="reference" required style="position:absolute;left:8px;top:183px;width:150px;height:23px;">
     <label style="position:absolute;left:170px;top:158px;width:150px;">সদস্যের নামঃ</label>
     <input type="text" id="name" required style="position:absolute;left:170px;top:183px;width:150px;height:23px;">
     <input type="text" id="phone" required style="width:150px;position:absolute;left:170px;height:23px;top:253px;">
@@ -194,3 +194,31 @@ function submitData(data) {
 
 
 </html>
+------------------------------------------
+//https://chatgpt.com/c/67a5273c-8fd4-8008-8d09-a0222ba6ef4a
+//'Member'G2:G=IFERROR(ARRAYFORMULA(Date Time Text(F2:F,YYYYMMDDHHMMSS)),"") Code.gs
+
+function MemberG() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Member');
+  var range = sheet.getRange('F2:F'); // Get the range of column F starting from row 2
+  var values = range.getValues(); // Get the values in that range
+  var formattedValues = [];
+
+  // Loop through each value in column F
+  for (var i = 0; i < values.length; i++) {
+    var date = values[i][0];
+    
+    // Check if the value is a valid date object
+    if (date instanceof Date && !isNaN(date)) {
+      var formattedDate = Utilities.formatDate(date, "Asia/Dhaka", "yyyyMMddHHmmss");
+      formattedValues.push([formattedDate]);
+    } else {
+      formattedValues.push([""]); // If it's not a valid date, leave it empty
+    }
+  }
+
+  // Set the formatted values into column G
+  sheet.getRange(2, 7, formattedValues.length, 1).setValues(formattedValues);
+}
+
+
