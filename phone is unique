@@ -1,10 +1,23 @@
 //https://chatgpt.com/c/67a2c9b2-0e84-8008-9d45-0191c5df5d1c
-//https://script.google.com/macros/s/AKfycbz1M80McmU33gxQx1ITs9X84KPm8ONb71Lvt-J7KWrYkrpGh2MsPthPJLYocmpJSET0bA/exec
+//https://script.google.com/macros/s/AKfycbxAunWkjXJUAOTFsmMCNokvnsd9gY9QQ6LldWWQtVVuFTR7mWut15zyKG6t5SVI6myOyA/exec
 
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('index');
 }
 
+// Fetch titles from Sheet2!A2:A
+function getTitles() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet2");
+  var titles = sheet.getRange("A2:A").getValues();
+  // Flatten the array and return only non-empty titles
+  return titles.filter(function(title) {
+    return title[0] != "";
+  }).map(function(title) {
+    return title[0];
+  });
+}
+
+// Submit form data
 function submitData(data) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
   var values = sheet.getDataRange().getValues();
@@ -17,39 +30,62 @@ function submitData(data) {
   }
 
   // Append data
-  sheet.appendRow([data.reference, data.name, data.phone]);
+  sheet.appendRow([data.reference, data.name, data.phone, data.title,]);
   return "Data added successfully!";
 }
---------------------------------
+
+-----------------------------
 <!DOCTYPE html>
 <html>
   <head>
-<script>
-  function submitForm() {
-    var data = {
-      reference: document.getElementById("reference").value,
-      name: document.getElementById("name").value,
-      phone: document.getElementById("phone").value
-    };
+    <script>
+      // Function to fetch the list of titles from Sheet2
+      function loadTitles() {
+        google.script.run.withSuccessHandler(function(titles) {
+          var titleSelect = document.getElementById("title");
+          titles.forEach(function(title) {
+            var option = document.createElement("option");
+            option.text = title;
+            titleSelect.add(option);
+          });
+        }).getTitles();
+      }
 
-    google.script.run
-      .withSuccessHandler(function(response) {
-        document.getElementById("result").innerText = response;
+      function submitForm() {
+        var data = {
+          title: document.getElementById("title").value,
+          reference: document.getElementById("reference").value,
+          name: document.getElementById("name").value,
+          phone: document.getElementById("phone").value
+        };
 
-        // Clear form fields if submission is successful
-        if (response === "Data added successfully!") {
-          document.getElementById("reference").value = "";
-          document.getElementById("name").value = "";
-          document.getElementById("phone").value = "";
-        }
-      })
-      .submitData(data);
-  }
-</script>
+        google.script.run
+          .withSuccessHandler(function(response) {
+            document.getElementById("result").innerText = response;
 
+            // Clear form fields if submission is successful
+            if (response === "Data added successfully!") {
+              document.getElementById("title").value = "";
+              document.getElementById("reference").value = "";
+              document.getElementById("name").value = "";
+              document.getElementById("phone").value = "";
+            }
+          })
+          .submitData(data);
+      }
+
+      // Load titles when the page loads
+      window.onload = loadTitles;
+    </script>
   </head>
   <body>
     <h2>Data Entry Form</h2>
+
+    <label>Title:</label>
+    <select id="title" required>
+      <option value="">Select Title</option>
+    </select><br><br>
+
     <label>Reference:</label>
     <input type="text" id="reference" required><br><br>
     
