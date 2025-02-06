@@ -1,0 +1,40 @@
+//https://chatgpt.com/c/67a52009-5690-8008-bf49-40336409ac9c
+//https://script.google.com/macros/s/AKfycbxIPoChb6G37scvmp1qTjVpH50pGJdq4VwR3lxAYADRuDxMN2POloDgLl-WM0ovC2xN7w/exec
+
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('index')
+  .setTitle("Member registration form")
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+
+function getSheetData() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+  var data = sheet.getRange("A2:C2").getValues()[0]; 
+  return data;
+}
+--------------------------------
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AppSheet Data</title>
+    <script>
+        function fetchData() {
+            google.script.run.withSuccessHandler(updateUI).getSheetData();
+        }
+
+        function updateUI(data) {
+            document.getElementById("line1").innerText = data[0];
+            document.getElementById("line2").innerText = data[1];
+            document.getElementById("line3").innerText = data[2];
+        }
+
+        window.onload = fetchData;
+    </script>
+</head>
+<body>
+    <h1 id="line1">Loading...</h1>
+    <h2 id="line2">Loading...</h2>
+    <h3 id="line3">Loading...</h3>
+</body>
+</html>
