@@ -1,0 +1,181 @@
+//https://chatgpt.com/c/67a2c9b2-0e84-8008-9d45-0191c5df5d1c
+//https://script.google.com/macros/s/AKfycbwTEpZy1qN6Nno9drodWOc3-pD_Jv5MBS-gNBgTuW7MmCCiG4RSRAEjPB-7rWd5ZQUtcw/exec
+
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('index')
+  .setTitle("Member registration form")
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+// Fetch titles from Extra!A2:A
+function getTitles() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Extra");
+  var titles = sheet.getRange("A2:A").getValues();
+  return titles.filter(function(title) {
+    return title[0] != "";
+  }).map(function(title) {
+    return title[0];
+  });
+}
+
+// Check if Reference exists in Extra!B2:B
+function referenceExists(reference) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Extra");
+  var references = sheet.getRange("B2:B").getValues();
+  for (var i = 0; i < references.length; i++) {
+    if (references[i][0] == reference) {
+      return true;
+    }
+  }
+  return false;
+}
+
+// Get the current time in Asia/Dhaka timezone
+function getCurrentTime() {
+  var timezone = "Asia/Dhaka";
+  var date = new Date();
+  var formattedTime = Utilities.formatDate(date, timezone, "yyyy-MM-dd HH:mm:ss");
+  return formattedTime;
+}
+
+// Submit form data
+function submitData(data) {
+  // Check if the reference exists
+  if (!referenceExists(data.reference)) {
+    return "Invalid Reference Number!";
+  }
+
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Member");
+  var values = sheet.getDataRange().getValues();
+
+  // Check if phone number already exists
+  for (var i = 1; i < values.length; i++) {
+    if (values[i][2] == data.phone) {
+      return "Phone number already exists!";
+    }
+  }
+
+  // Append data with the current time and address
+  var time = getCurrentTime();
+  sheet.appendRow([data.reference, data.name, data.phone, data.address, data.title, time]);
+  return "Member added successfully!";
+}
+----------------------------
+<!DOCTYPE html>
+<html>
+  <head>
+    <script>
+      // Function to fetch the list of titles from Sheet2
+      function loadTitles() {
+        google.script.run.withSuccessHandler(function(titles) {
+          var titleSelect = document.getElementById("title");
+          titles.forEach(function(title) {
+            var option = document.createElement("option");
+            option.text = title;
+            titleSelect.add(option);
+          });
+        }).getTitles();
+      }
+
+      // Function to fetch and display the current time
+      function setCurrentTime() {
+        google.script.run.withSuccessHandler(function(time) {
+          document.getElementById("time").value = time;
+        }).getCurrentTime();
+      }
+
+      function submitForm() {
+        var data = {
+          reference: document.getElementById("reference").value,
+          name: document.getElementById("name").value,
+          phone: document.getElementById("phone").value,
+          title: document.getElementById("title").value,
+          address: document.getElementById("address").value,
+          time: document.getElementById("time").value
+        };
+
+        var warningMessage = "";
+
+        // Check each field and accumulate warning messages if any field is blank
+        if (!data.reference) {
+          warningMessage += "Reference is required.\n";
+        }
+        if (!data.name) {
+          warningMessage += "Name is required.\n";
+        }
+        if (!data.phone) {
+          warningMessage += "Phone is required.\n";
+        }
+        if (!data.title) {
+          warningMessage += "Title is required.\n";
+        }
+        if (!data.address) {
+          warningMessage += "Address is required.\n";
+        }
+        if (!data.time) {
+          warningMessage += "Time is required.\n";
+        }
+
+        // If there are any missing fields, show a warning and stop form submission
+        if (warningMessage) {
+          document.getElementById("result").innerText = warningMessage;
+          return;
+        }
+
+        // If all fields are filled, submit the form
+        google.script.run
+          .withSuccessHandler(function(response) {
+            document.getElementById("result").innerText = response;
+
+            // Clear form fields if submission is successful
+            if (response === "Member added successfully!") {
+              clearFormFields();
+            }
+          })
+          .submitData(data);
+      }
+
+      // Clear all form fields
+      function clearFormFields() {
+        document.getElementById("reference").value = "";
+        document.getElementById("name").value = "";
+        document.getElementById("phone").value = "";
+        document.getElementById("title").value = "";
+        document.getElementById("address").value = "";
+        document.getElementById("time").value = "";
+      }
+
+      // Load titles and set current time when the page loads
+      window.onload = function() {
+        loadTitles();
+        setCurrentTime();
+      };
+    </script>
+  </head>
+  <body>
+    <h2>Member registration form</h2>
+
+    <label>Reference:</label>
+    <input type="text" id="reference" required><br><br>
+    
+    <label>Name:</label>
+    <input type="text" id="name" required><br><br>
+
+    <label>Title:</label>
+    <select id="title" required>
+    <option value="">Select Title</option></select><br><br>
+    
+    <label>Phone:</label>
+    <input type="text" id="phone" required><br><br>
+
+    <label>Address:</label>
+    <input type="text" id="address" required><br><br>
+
+    <label>Time:</label>
+    <input type="text" id="time" readonly required><br><br>
+
+    <button onclick="submitForm()">Submit</button>
+
+    <p id="result" style="color: red;"></p> <!-- Display warnings here -->
+  </body>
+</html>
