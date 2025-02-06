@@ -1,8 +1,10 @@
 //https://chatgpt.com/c/67a2c9b2-0e84-8008-9d45-0191c5df5d1c
-//https://script.google.com/macros/s/AKfycbytXCZtn21UBO51Cwh-TqjQ4yHxM-42pWlMuWtIXh2unIL4qniyLKHZkwJAlQrnxYHU/exec
+//https://script.google.com/macros/s/AKfycbz3LBMjuxClwdKBdTBYPrzW47AH-mYDUpk06sojAx30BBwwzFyfa2Udm3xwTGmJp-gOmQ/exec
 
 function doGet() {
-  return HtmlService.createHtmlOutputFromFile('index');
+  return HtmlService.createHtmlOutputFromFile('index')
+  .setTitle("Member registration form")
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
 // Fetch titles from Sheet2!A2:A
@@ -40,7 +42,7 @@ function getCurrentTime() {
 function submitData(data) {
   // Check if the reference exists
   if (!referenceExists(data.reference)) {
-    return "Reference does not exist in Sheet2!";
+    return "Invalid Reference Number!";
   }
 
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
@@ -56,7 +58,7 @@ function submitData(data) {
   // Append data with the current time and address
   var time = getCurrentTime();
   sheet.appendRow([data.reference, data.name, data.phone, data.address, data.title, time]);
-  return "Data added successfully!";
+  return "Member added successfully!";
 }
 --------------------------------------
 <!DOCTYPE html>
@@ -126,16 +128,21 @@ function submitData(data) {
             document.getElementById("result").innerText = response;
 
             // Clear form fields if submission is successful
-            if (response === "Data added successfully!") {
-              document.getElementById("title").value = "";
-              document.getElementById("reference").value = "";
-              document.getElementById("name").value = "";
-              document.getElementById("phone").value = "";
-              document.getElementById("address").value = "";
-              document.getElementById("time").value = "";
+            if (response === "Member added successfully!") {
+              clearFormFields();
             }
           })
           .submitData(data);
+      }
+
+      // Clear all form fields
+      function clearFormFields() {
+        document.getElementById("title").value = "";
+        document.getElementById("reference").value = "";
+        document.getElementById("name").value = "";
+        document.getElementById("phone").value = "";
+        document.getElementById("address").value = "";
+        document.getElementById("time").value = "";
       }
 
       // Load titles and set current time when the page loads
