@@ -60,7 +60,7 @@ function submitData(data) {
   sheet.appendRow([data.reference, data.name, data.phone, data.address, data.title, time]);
   return "Member added successfully!";
 }
----------------------------------------
+------------------------------------------
 <!DOCTYPE html>
 <html>
   <head>
@@ -98,23 +98,21 @@ function submitData(data) {
 
         // Check each field and accumulate warning messages if any field is blank
         if (!data.reference) {
-          warningMessage += "Reference is required.\n";
+          warningMessage += "রেফেরেন্স কোড লিখুন.\n";
         }
         if (!data.name) {
-          warningMessage += "Name is required.\n";
+          warningMessage += "সদস্যের নাম লিখুন.\n";
         }
         if (!data.phone) {
-          warningMessage += "Phone is required.\n";
+          warningMessage += "মোবাইল নাম্বার লিখুন.\n";
         }
         if (!data.title) {
-          warningMessage += "Title is required.\n";
+          warningMessage += "পেশা বাছাই করুন.\n";
         }
         if (!data.address) {
-          warningMessage += "Address is required.\n";
+          warningMessage += "পূর্ণ ঠিকানা লিখুন.\n";
         }
-        if (!data.time) {
-          warningMessage += "Time is required.\n";
-        }
+
 
         // If there are any missing fields, show a warning and stop form submission
         if (warningMessage) {
@@ -157,31 +155,38 @@ function submitData(data) {
 
 <body node-projects-lock-at-design-time style="width:333px;left:NaNpx;top:NaNpx;">
     <br style="top:NaNpx;"><br style="top:NaNpx;"><br style="top:NaNpx;"><br style="top:NaNpx;">
-<label style="position:absolute;left:8px;top:228px;width:177px;">Title:</label>
-    <select id="title" required style="position:absolute;left:8px;top:253px;width:150px;height:28px;">
-        <option value>Select Title</option>
+<label style="position:absolute;left:8px;top:228px;width:177px;">পূর্ণ ঠিকানাঃ</label>
+    <select id="title" required style="position:absolute;left:8px;top:322px;width:150px;height:28px;">
+        <option value>বাছাই করুনঃ</option>
     </select>
     <br style="top:NaNpx;"><br style="top:NaNpx;">
-<label style="position:absolute;left:170px;top:228px;">Phone:</label>
+<label style="position:absolute;left:170px;top:228px;">মোবাইল নাম্বারঃ</label>
     <br style="top:NaNpx;"><br style="top:NaNpx;">
-<label style="position:absolute;left:8px;top:298px;">Address:</label>
-    <input type="text" id="address" required style="width:150px;position:absolute;left:8px;top:323px;height:23px;">
+<label style="position:absolute;left:8px;top:298px;">পেশাঃ</label>
+    <input type="text" id="address" required style="width:150px;position:absolute;left:8px;top:253px;height:23px;">
     <br style="top:NaNpx;"><br style="top:NaNpx;">
-<label style="position:absolute;left:170px;top:298px;">Time:</label>
-    <input type="text" id="time" readonly required style="width:150px;position:absolute;left:170px;top:323px;height:23px;">
+<input type="text" id="time" readonly required style="width:150px;position:absolute;left:170px;top:322px;height:23px;">
     <br style="top:NaNpx;"><br style="top:NaNpx;">
-    <input type="text" id="reference" required style="position:absolute;left:8px;top:183px;width:150px;height:23px;">
-    <label style="position:absolute;left:170px;top:158px;width:150px;">Member Name:</label>
+<input type="text" id="reference" required style="position:absolute;left:8px;top:183px;width:150px;height:23px;">
+    <label style="position:absolute;left:170px;top:158px;width:150px;">সদস্যের নামঃ</label>
     <input type="text" id="name" required style="position:absolute;left:170px;top:183px;width:150px;height:23px;">
     <input type="text" id="phone" required style="width:150px;position:absolute;left:170px;height:23px;top:253px;">
-    <button onclick="submitForm()" style="position:absolute;left:8px;top:362px;">Submit</button>
-    <label style="position:absolute;left:8px;top:158px;width:156px;">Reference code:</label>
-    <h2 align="center" style="width:320px;left:8px;top:68px;position:absolute;">Member registration form</h2>
-    <h2 align="center" style="width:320px;left:8px;top:-5px;position:absolute;font-size:30px;">As Sunnah Enterprise</h2>
-    <h2 align="center" style="width:320px;left:8px;top:389px;position:absolute;color:White;background:rgb(138, 115, 0);">সদস্য ফি একশত টাকা।</h2>
+    <button onclick="submitForm()" style="position:absolute;left:102px;top:357px;width:85px;">সাবমিট</button>
+    <label style="position:absolute;left:8px;top:158px;width:156px;">রেফেরেন্স কোডঃ</label>
+    <h2 align="center" style="width:320px;left:8px;top:68px;position:absolute;font-size:18px;">সদস্য রেজিঃ ফর্ম</h2>
+    <h2 align="center" style="width:320px;left:8px;top:-5px;position:absolute;font-size:20px;">আস সুন্নাত এন্টারপ্রাইজ</h2>
+    <h2 align="center" style="width:320px;left:8px;top:381px;position:absolute;color:White;background:rgb(138, 115, 0);">সদস্য ফি একশত টাকা।</h2>
     <p id="result" style="color:red;left:8px;top:439px;position:absolute;"></p>
     <!-- Display warnings here -->
+    <label style="position:absolute;left:170px;top:298px;">তারিখ ও সময়ঃ</label>
+    <button style="position:absolute;left:8px;top:357px;width:85px;">লগিন</button>
 </body>
+
+
+
+
+
+
 
 
 
