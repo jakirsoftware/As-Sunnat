@@ -1,5 +1,5 @@
 //https://chatgpt.com/c/67a2c9b2-0e84-8008-9d45-0191c5df5d1c
-//https://script.google.com/macros/s/AKfycbxe1TqXXAP25LtkeRw03Rvdx3iqvWkMU03_WUvhZM-Rr9lIocTIa8mqIWsJTNM1V9l0/exec
+//https://script.google.com/macros/s/AKfycbytXCZtn21UBO51Cwh-TqjQ4yHxM-42pWlMuWtIXh2unIL4qniyLKHZkwJAlQrnxYHU/exec
 
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('index');
@@ -53,12 +53,12 @@ function submitData(data) {
     }
   }
 
-  // Append data with the current time
+  // Append data with the current time and address
   var time = getCurrentTime();
-  sheet.appendRow([data.reference, data.name, data.phone, data.title, time]);
+  sheet.appendRow([data.reference, data.name, data.phone, data.address, data.title, time]);
   return "Data added successfully!";
 }
--------------------
+--------------------------------------
 <!DOCTYPE html>
 <html>
   <head>
@@ -88,9 +88,39 @@ function submitData(data) {
           reference: document.getElementById("reference").value,
           name: document.getElementById("name").value,
           phone: document.getElementById("phone").value,
+          address: document.getElementById("address").value,
           time: document.getElementById("time").value
         };
 
+        var warningMessage = "";
+
+        // Check each field and accumulate warning messages if any field is blank
+        if (!data.title) {
+          warningMessage += "Title is required.\n";
+        }
+        if (!data.reference) {
+          warningMessage += "Reference is required.\n";
+        }
+        if (!data.name) {
+          warningMessage += "Name is required.\n";
+        }
+        if (!data.phone) {
+          warningMessage += "Phone is required.\n";
+        }
+        if (!data.address) {
+          warningMessage += "Address is required.\n";
+        }
+        if (!data.time) {
+          warningMessage += "Time is required.\n";
+        }
+
+        // If there are any missing fields, show a warning and stop form submission
+        if (warningMessage) {
+          document.getElementById("result").innerText = warningMessage;
+          return;
+        }
+
+        // If all fields are filled, submit the form
         google.script.run
           .withSuccessHandler(function(response) {
             document.getElementById("result").innerText = response;
@@ -101,7 +131,8 @@ function submitData(data) {
               document.getElementById("reference").value = "";
               document.getElementById("name").value = "";
               document.getElementById("phone").value = "";
-              document.getElementById("time").value = "";  // Clear time field
+              document.getElementById("address").value = "";
+              document.getElementById("time").value = "";
             }
           })
           .submitData(data);
@@ -131,11 +162,14 @@ function submitData(data) {
     <label>Phone:</label>
     <input type="text" id="phone" required><br><br>
 
+    <label>Address:</label>
+    <input type="text" id="address" required><br><br>
+
     <label>Time:</label>
-    <input type="text" id="time" readonly><br><br>  <!-- Disabled input for time -->
+    <input type="text" id="time" readonly required><br><br>
 
     <button onclick="submitForm()">Submit</button>
 
-    <p id="result"></p>
+    <p id="result" style="color: red;"></p> <!-- Display warnings here -->
   </body>
 </html>
