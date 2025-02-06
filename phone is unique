@@ -9,7 +9,6 @@ function doGet() {
 function getTitles() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet2");
   var titles = sheet.getRange("A2:A").getValues();
-  // Flatten the array and return only non-empty titles
   return titles.filter(function(title) {
     return title[0] != "";
   }).map(function(title) {
@@ -17,8 +16,25 @@ function getTitles() {
   });
 }
 
+// Check if Reference exists in Sheet2!B2:B
+function referenceExists(reference) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet2");
+  var references = sheet.getRange("B2:B").getValues();
+  for (var i = 0; i < references.length; i++) {
+    if (references[i][0] == reference) {
+      return true;
+    }
+  }
+  return false;
+}
+
 // Submit form data
 function submitData(data) {
+  // Check if the reference exists
+  if (!referenceExists(data.reference)) {
+    return "Reference does not exist in Sheet2!";
+  }
+
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
   var values = sheet.getDataRange().getValues();
 
@@ -30,11 +46,10 @@ function submitData(data) {
   }
 
   // Append data
-  sheet.appendRow([data.reference, data.name, data.phone, data.title,]);
+  sheet.appendRow([data.reference, data.name, data.phone, data.title]);
   return "Data added successfully!";
 }
-
------------------------------
+------------------------------------
 <!DOCTYPE html>
 <html>
   <head>
