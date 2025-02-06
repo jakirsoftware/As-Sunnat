@@ -1,5 +1,5 @@
 //https://chatgpt.com/c/67a2c9b2-0e84-8008-9d45-0191c5df5d1c
-//https://script.google.com/macros/s/AKfycbx4P96nhXFQAmGL321wXojZW3An3Z5yKTpOuJjnwT1WbYkYYXcQZ89jQ7YXbMJ1ePMcOA/exec
+//https://script.google.com/macros/s/AKfycbzujYJWhKY-0suKfu60laL4rPzlPnQGWV6P-nMjgUDgo3dKB56re3DB20fXGPnxPkaR1g/exec
 
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('index')
@@ -60,7 +60,7 @@ function submitData(data) {
   sheet.appendRow([data.reference, data.name, data.phone, data.address, data.title, time]);
   return "Member added successfully!";
 }
-------------------------------------------
+------------------------------------------------------
 <!DOCTYPE html>
 <html>
   <head>
@@ -98,19 +98,19 @@ function submitData(data) {
 
         // Check each field and accumulate warning messages if any field is blank
         if (!data.reference) {
-          warningMessage += "রেফেরেন্স কোড লিখুন.\n";
+          warningMessage += "রেফেরেন্স কোড লিখুন!\n";
         }
         if (!data.name) {
-          warningMessage += "সদস্যের নাম লিখুন.\n";
+          warningMessage += "সদস্যের নাম লিখুন!\n";
         }
         if (!data.phone) {
-          warningMessage += "মোবাইল নাম্বার লিখুন.\n";
+          warningMessage += "মোবাইল নাম্বার লিখুন!\n";
         }
         if (!data.title) {
-          warningMessage += "পেশা বাছাই করুন.\n";
+          warningMessage += "পেশা বাছাই করুন!\n";
         }
         if (!data.address) {
-          warningMessage += "পূর্ণ ঠিকানা লিখুন.\n";
+          warningMessage += "পূর্ণ ঠিকানা লিখুন!\n";
         }
 
 
