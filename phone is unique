@@ -1,0 +1,66 @@
+//https://chatgpt.com/c/67a2c9b2-0e84-8008-9d45-0191c5df5d1c
+//https://script.google.com/macros/s/AKfycbz1M80McmU33gxQx1ITs9X84KPm8ONb71Lvt-J7KWrYkrpGh2MsPthPJLYocmpJSET0bA/exec
+
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('index');
+}
+
+function submitData(data) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+  var values = sheet.getDataRange().getValues();
+
+  // Check if phone number already exists
+  for (var i = 1; i < values.length; i++) {
+    if (values[i][2] == data.phone) {
+      return "Phone number already exists!";
+    }
+  }
+
+  // Append data
+  sheet.appendRow([data.reference, data.name, data.phone]);
+  return "Data added successfully!";
+}
+--------------------------------
+<!DOCTYPE html>
+<html>
+  <head>
+<script>
+  function submitForm() {
+    var data = {
+      reference: document.getElementById("reference").value,
+      name: document.getElementById("name").value,
+      phone: document.getElementById("phone").value
+    };
+
+    google.script.run
+      .withSuccessHandler(function(response) {
+        document.getElementById("result").innerText = response;
+
+        // Clear form fields if submission is successful
+        if (response === "Data added successfully!") {
+          document.getElementById("reference").value = "";
+          document.getElementById("name").value = "";
+          document.getElementById("phone").value = "";
+        }
+      })
+      .submitData(data);
+  }
+</script>
+
+  </head>
+  <body>
+    <h2>Data Entry Form</h2>
+    <label>Reference:</label>
+    <input type="text" id="reference" required><br><br>
+    
+    <label>Name:</label>
+    <input type="text" id="name" required><br><br>
+    
+    <label>Phone:</label>
+    <input type="text" id="phone" required><br><br>
+
+    <button onclick="submitForm()">Submit</button>
+
+    <p id="result"></p>
+  </body>
+</html>
