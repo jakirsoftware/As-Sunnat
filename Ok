@@ -1,5 +1,5 @@
 //https://chatgpt.com/c/67a2c9b2-0e84-8008-9d45-0191c5df5d1c
-//https://script.google.com/macros/s/AKfycbwTEpZy1qN6Nno9drodWOc3-pD_Jv5MBS-gNBgTuW7MmCCiG4RSRAEjPB-7rWd5ZQUtcw/exec
+//https://script.google.com/macros/s/AKfycbx4P96nhXFQAmGL321wXojZW3An3Z5yKTpOuJjnwT1WbYkYYXcQZ89jQ7YXbMJ1ePMcOA/exec
 
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('index')
@@ -60,7 +60,7 @@ function submitData(data) {
   sheet.appendRow([data.reference, data.name, data.phone, data.address, data.title, time]);
   return "Member added successfully!";
 }
-----------------------------
+------------------------------
 <!DOCTYPE html>
 <html>
   <head>
@@ -152,30 +152,40 @@ function submitData(data) {
       };
     </script>
   </head>
-  <body>
-    <h2>Member registration form</h2>
 
-    <label>Reference:</label>
-    <input type="text" id="reference" required><br><br>
-    
-    <label>Name:</label>
-    <input type="text" id="name" required><br><br>
 
-    <label>Title:</label>
-    <select id="title" required>
-    <option value="">Select Title</option></select><br><br>
-    
-    <label>Phone:</label>
-    <input type="text" id="phone" required><br><br>
 
-    <label>Address:</label>
-    <input type="text" id="address" required><br><br>
+<body node-projects-lock-at-design-time style="width:333px;left:NaNpx;top:NaNpx;">
+    <br style="top:NaNpx;"><br style="top:NaNpx;"><br style="top:NaNpx;"><br style="top:NaNpx;">
+<label style="position:absolute;left:8px;top:228px;width:177px;">Title:</label>
+    <select id="title" required style="position:absolute;left:8px;top:253px;width:150px;height:28px;">
+        <option value>Select Title</option>
+    </select>
+    <br style="top:NaNpx;"><br style="top:NaNpx;">
+<label style="position:absolute;left:170px;top:228px;">Phone:</label>
+    <br style="top:NaNpx;"><br style="top:NaNpx;">
+<label style="position:absolute;left:8px;top:298px;">Address:</label>
+    <input type="text" id="address" required style="width:150px;position:absolute;left:8px;top:323px;height:23px;">
+    <br style="top:NaNpx;"><br style="top:NaNpx;">
+<label style="position:absolute;left:170px;top:298px;">Time:</label>
+    <input type="text" id="time" readonly required style="width:150px;position:absolute;left:170px;top:323px;height:23px;">
+    <br style="top:NaNpx;"><br style="top:NaNpx;">
+    <input type="text" id="reference" required style="position:absolute;left:8px;top:183px;width:150px;height:23px;">
+    <label style="position:absolute;left:170px;top:158px;width:150px;">Member Name:</label>
+    <input type="text" id="name" required style="position:absolute;left:170px;top:183px;width:150px;height:23px;">
+    <input type="text" id="phone" required style="width:150px;position:absolute;left:170px;height:23px;top:253px;">
+    <button onclick="submitForm()" style="position:absolute;left:8px;top:362px;">Submit</button>
+    <label style="position:absolute;left:8px;top:158px;width:156px;">Reference code:</label>
+    <h2 align="center" style="width:320px;left:8px;top:68px;position:absolute;">Member registration form</h2>
+    <h2 align="center" style="width:320px;left:8px;top:-5px;position:absolute;font-size:30px;">As Sunnah Enterprise</h2>
+    <h2 align="center" style="width:320px;left:8px;top:389px;position:absolute;color:White;background:rgb(138, 115, 0);">সদস্য ফি একশত টাকা।</h2>
+    <p id="result" style="color:red;left:8px;top:439px;position:absolute;"></p>
+    <!-- Display warnings here -->
+</body>
 
-    <label>Time:</label>
-    <input type="text" id="time" readonly required><br><br>
 
-    <button onclick="submitForm()">Submit</button>
 
-    <p id="result" style="color: red;"></p> <!-- Display warnings here -->
-  </body>
+
+
+
 </html>
