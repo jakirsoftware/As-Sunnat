@@ -1,5 +1,5 @@
 //https://chatgpt.com/c/67a2c9b2-0e84-8008-9d45-0191c5df5d1c
-//https://script.google.com/macros/s/AKfycbxAunWkjXJUAOTFsmMCNokvnsd9gY9QQ6LldWWQtVVuFTR7mWut15zyKG6t5SVI6myOyA/exec
+//https://script.google.com/macros/s/AKfycbxe1TqXXAP25LtkeRw03Rvdx3iqvWkMU03_WUvhZM-Rr9lIocTIa8mqIWsJTNM1V9l0/exec
 
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('index');
@@ -28,6 +28,14 @@ function referenceExists(reference) {
   return false;
 }
 
+// Get the current time in Asia/Dhaka timezone
+function getCurrentTime() {
+  var timezone = "Asia/Dhaka";
+  var date = new Date();
+  var formattedTime = Utilities.formatDate(date, timezone, "yyyy-MM-dd HH:mm:ss");
+  return formattedTime;
+}
+
 // Submit form data
 function submitData(data) {
   // Check if the reference exists
@@ -45,11 +53,12 @@ function submitData(data) {
     }
   }
 
-  // Append data
-  sheet.appendRow([data.reference, data.name, data.phone, data.title]);
+  // Append data with the current time
+  var time = getCurrentTime();
+  sheet.appendRow([data.reference, data.name, data.phone, data.title, time]);
   return "Data added successfully!";
 }
-------------------------------------
+-------------------
 <!DOCTYPE html>
 <html>
   <head>
@@ -66,12 +75,20 @@ function submitData(data) {
         }).getTitles();
       }
 
+      // Function to fetch and display the current time
+      function setCurrentTime() {
+        google.script.run.withSuccessHandler(function(time) {
+          document.getElementById("time").value = time;
+        }).getCurrentTime();
+      }
+
       function submitForm() {
         var data = {
           title: document.getElementById("title").value,
           reference: document.getElementById("reference").value,
           name: document.getElementById("name").value,
-          phone: document.getElementById("phone").value
+          phone: document.getElementById("phone").value,
+          time: document.getElementById("time").value
         };
 
         google.script.run
@@ -84,13 +101,17 @@ function submitData(data) {
               document.getElementById("reference").value = "";
               document.getElementById("name").value = "";
               document.getElementById("phone").value = "";
+              document.getElementById("time").value = "";  // Clear time field
             }
           })
           .submitData(data);
       }
 
-      // Load titles when the page loads
-      window.onload = loadTitles;
+      // Load titles and set current time when the page loads
+      window.onload = function() {
+        loadTitles();
+        setCurrentTime();
+      };
     </script>
   </head>
   <body>
@@ -109,6 +130,9 @@ function submitData(data) {
     
     <label>Phone:</label>
     <input type="text" id="phone" required><br><br>
+
+    <label>Time:</label>
+    <input type="text" id="time" readonly><br><br>  <!-- Disabled input for time -->
 
     <button onclick="submitForm()">Submit</button>
 
