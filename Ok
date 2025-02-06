@@ -60,7 +60,7 @@ function submitData(data) {
   sheet.appendRow([data.reference, data.name, data.phone, data.address, data.title, time]);
   return "Member added successfully!";
 }
-------------------------------
+---------------------------------------
 <!DOCTYPE html>
 <html>
   <head>
