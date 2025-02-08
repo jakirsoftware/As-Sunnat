@@ -1,0 +1,132 @@
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Value_Display1')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+// Fetch names and their corresponding B2:B values from 'Extra'
+function getNamesAndValues() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Extra");
+  var data = sheet.getRange("A2:B" + sheet.getLastRow()).getValues();
+  var nameValuePairs = {};
+  
+  data.forEach(row => {
+    if (row[0] && row[1]) { // Ensure both name (A) and value (B) exist
+      nameValuePairs[row[0]] = row[1];
+    }
+  });
+
+  return nameValuePairs;
+}
+
+// Fetch data from 'Sheet1'!B2:D
+function getData() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+  var data = sheet.getRange("B2:D" + sheet.getLastRow()).getValues();
+  return data;
+}
+
+// Add data to 'Sheet1' with the corresponding value from 'Extra' (A -> B)
+function addData(name, email, message) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+  var extraSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Extra");
+  var data = extraSheet.getRange("A2:B" + extraSheet.getLastRow()).getValues();
+
+  var nameToValueMap = {};
+  data.forEach(row => {
+    if (row[0] && row[1]) {
+      nameToValueMap[row[0]] = row[1];
+    }
+  });
+
+  var correspondingValue = nameToValueMap[name] || "Not Found";
+
+  var lastRow = sheet.getLastRow() + 1;
+  sheet.getRange(lastRow, 2).setValue(name); // Save name in column B
+  sheet.getRange(lastRow, 3).setValue(email); // Save email in column C
+  sheet.getRange(lastRow, 4).setValue(message); // Save message in column D
+  sheet.getRange(lastRow, 1).setValue(correspondingValue); // Save corresponding value in column A
+
+  return "Data added successfully!";
+}
+--------------------------------------
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Sheets Data Entry</title>
+    <script>
+        let nameValueMap = {};
+
+        function fetchNames() {
+            google.script.run.withSuccessHandler(populateNameDropdown).getNamesAndValues();
+        }
+
+        function populateNameDropdown(data) {
+            nameValueMap = data; // Store name-value pairs globally
+
+            let nameSelect = document.getElementById("name");
+            nameSelect.innerHTML = "<option value=''>Select a Name</option>"; // Default option
+
+            Object.keys(data).forEach(name => {
+                let option = document.createElement("option");
+                option.value = name;
+                option.textContent = name;
+                nameSelect.appendChild(option);
+            });
+
+            // Set event listener to display the corresponding value
+            nameSelect.addEventListener("change", function() {
+                document.getElementById("correspondingValue").innerText = 
+                    nameValueMap[this.value] || "Not Found";
+            });
+        }
+
+        function fetchData() {
+            google.script.run.withSuccessHandler(displayData).getData();
+        }
+
+        function displayData(data) {
+            let table = "<table border='1'><tr><th>Value (A)</th><th>Name (B)</th><th>Email (C)</th><th>Message (D)</th></tr>";
+            data.forEach(row => {
+                table += `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td><td>${row[3]}</td></tr>`;
+            });
+            table += "</table>";
+            document.getElementById("data").innerHTML = table;
+        }
+
+        function submitData() {
+            let name = document.getElementById("name").value;
+            let email = document.getElementById("email").value;
+            let message = document.getElementById("message").value;
+
+            if (!name) {
+                alert("Please select a name!");
+                return;
+            }
+
+            google.script.run.addData(name, email, message);
+            alert("Data Submitted!");
+            fetchData(); // Refresh table
+        }
+
+        window.onload = function() {
+            fetchNames(); // Populate dropdown
+            fetchData();  // Load existing data
+        };
+    </script>
+</head>
+<body>
+    <h2>Google Sheets Data Entry</h2>
+    <label for="name">Select Name:</label>
+    <select id="name"></select><br>
+    
+    <h3>Corresponding Value:</h3>
+    <p id="correspondingValue">Select a name to see the value</p>
+    
+    <input type="email" id="email" placeholder="Email"><br>
+    <textarea id="message" placeholder="Message"></textarea><br>
+    <button onclick="submitData()">Submit</button>
+
+    <h3>Data from Google Sheets:</h3>
+    <div id="data"></div>
+</body>
+</html>
