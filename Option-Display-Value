@@ -1,0 +1,94 @@
+//https://chatgpt.com/c/67a74e22-0ba0-8008-be81-376b083297f0
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('Value_Display1')
+    .setTitle('Data Entry');
+}
+
+// Fetch names (A2:A for values, B2:B for display)
+function getNames() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Extra");
+  var data = sheet.getRange("A2:B" + sheet.getLastRow()).getValues(); // Get both columns
+  return data.map(row => ({ id: row[0], displayName: row[1] })); // Convert to object
+}
+
+// Fetch stored data from 'Sheet1'!A2:C
+function getData() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+  var data = sheet.getRange("A2:C" + sheet.getLastRow()).getValues();
+  return data;
+}
+
+// Add new data entry
+function addData(id, email, message) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+  sheet.appendRow([id, email, message]); // Save the A column value (ID)
+  return "Data added successfully!";
+}
+-------------------------------------------
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Data Entry</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; padding: 20px; }
+    input, button, select { margin: 10px 0; padding: 8px; }
+  </style>
+  <script>
+    function fetchNames() {
+      google.script.run.withSuccessHandler(populateNames).getNames();
+    }
+
+    function populateNames(names) {
+      let nameSelect = document.getElementById("name");
+      nameSelect.innerHTML = "";
+
+      names.forEach(nameObj => {
+        let option = document.createElement("option");
+        option.value = nameObj.id; // Store A column value
+        option.textContent = nameObj.displayName; // Show B column value
+        nameSelect.appendChild(option);
+      });
+    }
+
+    function fetchData() {
+      google.script.run.withSuccessHandler(displayData).getData();
+    }
+
+    function displayData(data) {
+      let table = "<table border='1'><tr><th>ID</th><th>Email</th><th>Message</th></tr>";
+      data.forEach(row => {
+        table += `<tr><td>${row[0]}</td><td>${row[1]}</td><td>${row[2]}</td></tr>`;
+      });
+      table += "</table>";
+      document.getElementById("data").innerHTML = table;
+    }
+
+    function submitData() {
+      let name = document.getElementById("name").value; // Send the A column value
+      let email = document.getElementById("email").value;
+      let message = document.getElementById("message").value;
+
+      google.script.run.withSuccessHandler(() => {
+        alert("Data Submitted Successfully!");
+        fetchData();
+      }).addData(name, email, message);
+    }
+
+    window.onload = function() {
+      fetchNames();
+      fetchData();
+    };
+  </script>
+</head>
+<body>
+  <h2>Data Entry Form</h2>
+  <label>Select Name:</label>
+  <select id="name"></select><br>
+  <input type="email" id="email" placeholder="Enter Email"><br>
+  <input type="text" id="message" placeholder="Enter Message"><br>
+  <button onclick="submitData()">Submit</button>
+
+  <h2>Stored Data</h2>
+  <div id="data"></div>
+</body>
+</html>
