@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheet Data</title>
+</head>
+<body>
+    <h2>Value from Google Sheet (A2):</h2>
+    <p id="sheetData">Loading...</p>
+
+    <script>
+        async function fetchSheetData() {
+            const sheetID = "YOUR_GOOGLE_SHEET_ID";  // Replace with your Google Sheet ID
+            const range = "Sheet1!A2";
+            const apiKey = "YOUR_GOOGLE_API_KEY";  // Replace with your Google API Key
+            
+            const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetID}/values/${range}?key=${apiKey}`;
+
+            try {
+                let response = await fetch(url);
+                let data = await response.json();
+                
+                if (data.values) {
+                    document.getElementById("sheetData").innerText = data.values[0][0];
+                } else {
+                    document.getElementById("sheetData").innerText = "No data found.";
+                }
+            } catch (error) {
+                document.getElementById("sheetData").innerText = "Error fetching data.";
+                console.error("Error:", error);
+            }
+        }
+
+        fetchSheetData();
+    </script>
+</body>
+</html>
