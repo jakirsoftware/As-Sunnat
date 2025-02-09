@@ -1,0 +1,80 @@
+function doGet() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+  var data = sheet.getRange("A2:G" + sheet.getLastRow()).getValues(); // Get all rows in A2:G
+  
+  var output = ContentService.createTextOutput();
+  output.setMimeType(ContentService.MimeType.JSON);
+  output.setContent(JSON.stringify({ data: data }));
+  
+  return output;
+}
+-----------------------------------
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheet Data</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <h2>Google Sheet Data (A2:G)</h2>
+    <table id="sheetTable">
+        <thead>
+            <tr>
+                <th>A</th>
+                <th>B</th>
+                <th>C</th>
+                <th>D</th>
+                <th>E</th>
+                <th>F</th>
+                <th>G</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <script>
+        async function fetchSheetData() {
+            const url = "YOUR_WEB_APP_URL"; // Replace with your Web App URL
+
+            try {
+                let response = await fetch(url);
+                let result = await response.json();
+
+                let tableBody = document.querySelector("#sheetTable tbody");
+                tableBody.innerHTML = ""; // Clear existing data
+
+                result.data.forEach(row => {
+                    let tr = document.createElement("tr");
+                    row.forEach(cell => {
+                        let td = document.createElement("td");
+                        td.innerText = cell;
+                        tr.appendChild(td);
+                    });
+                    tableBody.appendChild(tr);
+                });
+
+            } catch (error) {
+                console.error("Error:", error);
+                document.body.innerHTML += "<p>Error fetching data.</p>";
+            }
+        }
+
+        fetchSheetData();
+    </script>
+</body>
+</html>
