@@ -1,0 +1,160 @@
+function doGet() {
+  return HtmlService.createTemplateFromFile('index')
+    .evaluate()
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+function submitData(obj) {
+  // Replace your google Sheet id below >>>>>>>>>>>>>>>>>>>>
+  var spreadsheetId = "1Bfq89wi90O6w_RFLquFLXtyrD8YUXAQZroc0Cv5FxJU";
+  var sheetName = "Member";
+  var ss = SpreadsheetApp.openById(spreadsheetId);
+  var sheet = ss.getSheetByName(sheetName);
+  var flag = 1;
+  var lastRow = sheet.getLastRow();
+
+  for (var i = 1; i <= lastRow; i++) {
+    var currentId = sheet.getRange(i, 1).getValue();
+
+    if (currentId == obj) {
+      flag = 0;
+	  // Replace your google Sheet Heading below >>>>>>>>>>>>>>>>>>>>
+      var columnB = sheet.getRange(i, 2).getValue();
+      var columnC= sheet.getRange(i, 3).getValue();
+      var columnD = sheet.getRange(i, 4).getValue();
+      var columnE = sheet.getRange(i, 5).getValue();
+      var columnF = sheet.getRange(i, 6).getValue();
+      var columnG = sheet.getRange(i, 7).getValue(); 
+
+     
+
+      var resultHtml = "<table><tr><th colspan=2><center>Member Data:</center></th></tr><tr><td>COL-NAME-A:</td><td>"
+        + obj + "</td></tr><tr><td>COL-NAME-B:</td><td>"
+         + columnB + "</td></tr><tr><td>COL-NAME-C:</td><td>"
+        + columnC + "</td></tr><tr><td>COL-NAME-D:</td><td>"
+         + columnD + "</td></tr><tr><td>COL-NAME-E:</td><td>"
+          + columnE+ "</td></tr><tr><td>COL-NAME-F:</td><td>"
+           + columnF+ "</td></tr><tr><td>COL-NAME-G:</td><td>"
+            + columnG + "</td></tr></table>";
+
+      return resultHtml;
+
+
+
+
+    }
+  }
+
+  if (flag == 1) {
+    var notFoundMessage = "DATA IS NOT FOUND!";
+    return notFoundMessage;
+  }
+}
+-----------------------------------------
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      width: 300px;
+      text-align: center;
+    }
+
+    #inputId {
+      width: calc(100% - 20px);
+      padding: 10px;
+      margin: 10px 0;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 16px;
+    }
+
+    #submitButton {
+      width: 100%;
+      background-color: #4caf50;
+      color: #fff;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background-color 0.3s;
+    }
+
+    #submitButton:hover {
+      background-color: #45a049;
+    }
+
+    #resultContainer {
+      margin-top: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+  <!-- Replace "YOUR Name of the Exam -->
+    <h2>As Sunnat</h2>
+  <!-- Replace "YOUR Search Critiria Name -->
+    <label for="inputId">Member Details:</label>
+    <input type="text" id="inputId" placeholder="Enter Mobile Number">
+
+    <button id="submitButton" onclick="fetchData()">Submit</button>
+
+    <div id="resultContainer"></div>
+  </div>
+
+  <script>
+    function fetchData() {
+      var studentId = document.getElementById('inputId').value;
+
+      google.script.run
+        .withSuccessHandler(displayResult)
+        .submitData(studentId);
+    }
+
+    function displayResult(result) {
+      document.getElementById('resultContainer').innerHTML = result;
+    }
+  </script>
+
+  <!-- Replace "YOUR_SCRIPT_URL" with the actual URL of your deployed Google Apps Script web app -->
+  <script src="YOUR_SCRIPT_URL"></script>
+
+</body>
+</html>
