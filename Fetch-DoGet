@@ -1,0 +1,41 @@
+function doGet() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sheet1");
+  var value = sheet.getRange("A2").getValue();
+  
+  var output = ContentService.createTextOutput();
+  output.setMimeType(ContentService.MimeType.JSON);
+  output.setContent(JSON.stringify({ data: value }));
+  
+  return output;
+}
+---------------------------------------------
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheet Data</title>
+</head>
+<body>
+    <h2>Value from Google Sheet (A2):</h2>
+    <p id="sheetData">Loading...</p>
+
+    <script>
+        async function fetchSheetData() {
+            const url = "YOUR_WEB_APP_URL"; // Replace with your Web App URL
+            
+            try {
+                let response = await fetch(url);
+                let data = await response.json();
+                
+                document.getElementById("sheetData").innerText = data.data;
+            } catch (error) {
+                document.getElementById("sheetData").innerText = "Error fetching data.";
+                console.error("Error:", error);
+            }
+        }
+
+        fetchSheetData();
+    </script>
+</body>
+</html>
