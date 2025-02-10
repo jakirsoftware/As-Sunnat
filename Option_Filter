@@ -1,0 +1,133 @@
+function doGet() {
+  return HtmlService.createTemplateFromFile('optionH').evaluate();
+}
+
+function getExtraData() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
+  var data = sheet.getRange('F2:H').getValues(); // Get the data from F2:H (F, G, H columns)
+  return data;
+}
+
+function filterDataByColAAndColB(colAValue, colBValue) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('E1');
+  var data = sheet.getRange('A2:B').getValues(); // Get data from columns A to B only
+
+  // Filter the data based on both Column A and Column B values
+  var filteredData = data.filter(function(row) {
+    var matchesColA = colAValue ? row[0] === colAValue : true; // Match Column A if a value is selected
+    var matchesColB = colBValue ? row[1] === colBValue : true; // Match Column B if a value is selected
+    return matchesColA && matchesColB; // Return only rows that match both conditions
+  });
+
+  return filteredData; // Return filtered data
+}
+
+function doPost(e) {
+  // Process form submission
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('E1');
+
+  var colA = e.parameter.colA;
+  var colB = e.parameter.colB;
+  var colC = e.parameter.colC;
+  var colD = e.parameter.colD;
+
+  sheet.appendRow([colA, colB, colC, colD]);
+
+  return HtmlService.createHtmlOutput("Data submitted successfully!");
+}
+
+---------------------------------------
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Entry Form</title>
+    <script>
+      // Function to populate Column B options based on Column A selection
+      function updateColB() {
+        var colAValue = document.getElementById("colA").value;
+        var colBSelect = document.getElementById("colB");
+
+        // Clear previous options for Column B
+        colBSelect.innerHTML = "<option value=''>Select an option</option>";
+
+        if (colAValue) {
+          // Fetch data from Google Sheets using Google Apps Script
+          google.script.run.withSuccessHandler(function(data) {
+            // Find matching options for Column B based on Column A value
+            var options = data.filter(function(row) {
+              return row[0] === colAValue; // Match value from Column A
+            }).map(function(row) {
+              return row[1]; // Get corresponding value from Column B
+            });
+
+            // Populate Column B with matching options
+            options.forEach(function(option) {
+              var opt = document.createElement("option");
+              opt.value = option;
+              opt.text = option;
+              colBSelect.appendChild(opt);
+            });
+          }).getExtraData(); // Call Apps Script function to fetch data
+        }
+
+        // Filter and display data based on Column A and Column B values
+        filterDataByColAAndColB(colAValue, document.getElementById("colB").value);
+      }
+
+      // Function to filter data by Column A and Column B and update the footer section
+      function filterDataByColAAndColB(colAValue, colBValue) {
+        // Fetch filtered data from Google Sheets using Google Apps Script
+        google.script.run.withSuccessHandler(function(filteredData) {
+          var footer = document.getElementById("footer");
+          footer.innerHTML = ""; // Clear previous footer data
+
+          if (filteredData.length === 0) {
+            footer.innerHTML = "<p>No matching data found.</p>";
+          } else {
+            var table = "<table><tr><th>Column A</th><th>Column B</th></tr>";
+            filteredData.forEach(function(row) {
+              table += "<tr><td>" + row[0] + "</td><td>" + row[1] + "</td></tr>";
+            });
+            table += "</table>";
+            footer.innerHTML = table;
+          }
+        }).filterDataByColAAndColB(colAValue, colBValue); // Call Apps Script function to fetch filtered data
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Enter Data</h1>
+    <form action="https://script.google.com/macros/s/your-script-id/exec" method="post">
+
+      <label for="colA">Column A:</label><br>
+      <select id="colA" name="colA" required onchange="updateColB()">
+        <option value="">Select an option</option>
+        <option value="Option 1">Option 1</option>
+        <option value="Option 2">Option 2</option>
+        <option value="Option 3">Option 3</option>
+        <!-- Add more options as needed -->
+      </select><br><br>
+
+      <label for="colB">Column B:</label><br>
+      <select id="colB" name="colB" required>
+        <option value="">Select an option</option>
+      </select><br><br>
+
+      <label for="colC">Column C:</label><br>
+      <select id="colC" name="colC" required>
+        <option value="">Select an option</option>
+      </select><br><br>
+
+      <label for="colD">Column D:</label><br>
+      <input type="text" id="colD" name="colD" required><br><br>
+
+      <input type="submit" value="Submit">
+    </form>
+
+    <!-- Footer Section for displaying filtered data -->
+    <div id="footer">
+      <h2>Filtered Data</h2>
+      <p>Select an option in Column A and Column B to see the filtered data below.</p>
+    </div>
+  </body>
+</html>
