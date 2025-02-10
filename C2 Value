@@ -1,0 +1,12 @@
+function doGet() {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Extra");
+    var value = sheet.getRange("C2").getValue();
+    return ContentService.createTextOutput(value);
+}
+---------------------------------
+  <script>
+fetch('https://script.google.com/macros/s/{YourDeploymentID}/exec')
+    .then(response => response.text())
+    .then(data => document.getElementById("data").innerText = data);
+</script>
+<div id="data"></div>
