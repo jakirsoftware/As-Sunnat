@@ -1,0 +1,121 @@
+
+//https://chatgpt.com/c/67aa5275-56d0-8008-b451-dc74bc91e31a
+function doGet() {
+  return HtmlService.createTemplateFromFile('optionH').evaluate();
+}
+
+function getExtraData() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
+  var data = sheet.getRange('F2:H').getValues(); // Get the data from F2:H (F, G, H columns)
+  return data;
+}
+
+function doPost(e) {
+  // Process form submission
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('E1');
+  
+  var colA = e.parameter.colA;
+  var colB = e.parameter.colB;
+  var colC = e.parameter.colC;
+  var colD = e.parameter.colD;
+  
+  sheet.appendRow([colA, colB, colC, colD]);
+  
+  return HtmlService.createHtmlOutput("Data submitted successfully!");
+}
+-------------------------------
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Data Entry Form</title>
+    <script>
+      // Function to populate Column B options based on Column A selection
+      function updateColB() {
+        var colAValue = document.getElementById("colA").value;
+        var colBSelect = document.getElementById("colB");
+
+        // Clear previous options for Column B and Column C
+        colBSelect.innerHTML = "<option value=''>Select an option</option>";
+        document.getElementById("colC").innerHTML = "<option value=''>Select an option</option>";
+
+        if (colAValue) {
+          // Fetch data from Google Sheets using Google Apps Script
+          google.script.run.withSuccessHandler(function(data) {
+            // Find matching options for Column B based on Column A value
+            var options = data.filter(function(row) {
+              return row[0] === colAValue; // Match value from Extra!F2:F
+            }).map(function(row) {
+              return row[1]; // Get corresponding value from Extra!G2:G
+            });
+
+            // Populate Column B with matching options
+            options.forEach(function(option) {
+              var opt = document.createElement("option");
+              opt.value = option;
+              opt.text = option;
+              colBSelect.appendChild(opt);
+            });
+          }).getExtraData(); // Call Apps Script function to fetch data
+        }
+      }
+
+      // Function to populate Column C options based on Column B selection
+      function updateColC() {
+        var colBValue = document.getElementById("colB").value;
+        var colCSelect = document.getElementById("colC");
+
+        // Clear previous options for Column C
+        colCSelect.innerHTML = "<option value=''>Select an option</option>";
+
+        if (colBValue) {
+          // Fetch data from Google Sheets using Google Apps Script
+          google.script.run.withSuccessHandler(function(data) {
+            // Find matching options for Column C based on Column B value
+            var options = data.filter(function(row) {
+              return row[1] === colBValue; // Match value from Extra!G2:G
+            }).map(function(row) {
+              return row[2]; // Get corresponding value from Extra!H2:H
+            });
+
+            // Populate Column C with matching options
+            options.forEach(function(option) {
+              var opt = document.createElement("option");
+              opt.value = option;
+              opt.text = option;
+              colCSelect.appendChild(opt);
+            });
+          }).getExtraData(); // Call Apps Script function to fetch data
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Enter Data</h1>
+    <form action="https://script.google.com/macros/s/your-script-id/exec" method="post">
+        
+        <label for="colA">Column A:</label><br>
+        <select id="colA" name="colA" required onchange="updateColB()">
+            <option value="">Select an option</option>
+            <option value="Option 1">Option 1</option>
+            <option value="Option 2">Option 2</option>
+            <option value="Option 3">Option 3</option>
+            <!-- Add more options as needed -->
+        </select><br><br>
+
+        <label for="colB">Column B:</label><br>
+        <select id="colB" name="colB" required onchange="updateColC()">
+            <option value="">Select an option</option>
+        </select><br><br>
+
+        <label for="colC">Column C:</label><br>
+        <select id="colC" name="colC" required>
+            <option value="">Select an option</option>
+        </select><br><br>
+
+        <label for="colD">Column D:</label><br>
+        <input type="text" id="colD" name="colD" required><br><br>
+
+        <input type="submit" value="Submit">
+    </form>
+  </body>
+</html>
