@@ -1,0 +1,40 @@
+function doGet() {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Extra");
+    var values = sheet.getRange("C2:E2").getValues()[0]; // Get C2, D2, E2
+
+    var result = {
+        c2: values[0],
+        d2: values[1],
+        e2: values[2]
+    };
+
+    return ContentService.createTextOutput(JSON.stringify(result)).setMimeType(ContentService.MimeType.JSON);
+}
+
+---------------------------------
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheet Data</title>
+</head>
+<body>
+    <h2>Values from Google Sheet:</h2>
+    <p>C2: <span id="c2"></span></p>
+    <p>D2: <span id="d2"></span></p>
+    <p>E2: <span id="e2"></span></p>
+
+    <script>
+        fetch('https://script.google.com/macros/s/{YourDeploymentID}/exec')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById("c2").innerText = data.c2;
+                document.getElementById("d2").innerText = data.d2;
+                document.getElementById("e2").innerText = data.e2;
+            })
+            .catch(error => console.error('Error:', error));
+    </script>
+</body>
+</html>
+
