@@ -3,30 +3,30 @@ function doGet() {
 }
 
 // Get unique values for Column A from 'Extra'!F2:F
-function getUniqueColA() {
+function getUniquecolC() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
   var data = sheet.getRange('F2:F' + sheet.getLastRow()).getValues().flat();
   return [...new Set(data)].filter(String);
 }
 
 // Get Column B options based on selected Column A
-function getColBOptions(colAValue) {
+function getcolDOptions(colCValue) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
   var data = sheet.getRange('F2:G' + sheet.getLastRow()).getValues();
-  var colBValues = data.filter(row => row[0] === colAValue).map(row => row[1]);
-  return [...new Set(colBValues)].filter(String);
+  var colDValues = data.filter(row => row[0] === colCValue).map(row => row[1]);
+  return [...new Set(colDValues)].filter(String);
 }
 
 // Get Column C options based on selected Column B
-function getColCOptions(colBValue) {
+function getcolEOptions(colDValue) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
   var data = sheet.getRange('G2:H' + sheet.getLastRow()).getValues();
-  var colCValues = data.filter(row => row[0] === colBValue).map(row => row[1]);
-  return [...new Set(colCValues)].filter(String);
+  var colEValues = data.filter(row => row[0] === colDValue).map(row => row[1]);
+  return [...new Set(colEValues)].filter(String);
 }
 
 // Get Column D values (ID) and display labels (Name) from 'Contact'!A2:A (ID) and 'Contact'!B2:B (Label)
-function getColDOptions() {
+function getcolFOptions() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Contact');
   var data = sheet.getRange('A2:B' + sheet.getLastRow()).getValues();
   var options = data.map(row => ({ id: row[0], label: row[1] }));
@@ -34,7 +34,7 @@ function getColDOptions() {
 }
 
 // Get Column G options from 'Bank'!A2:A
-function getColGOptions() {
+function getcolIOptions() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Bank');
   var data = sheet.getRange('A2:B' + sheet.getLastRow()).getValues();
   var options = data.map(row => ({ id: row[0], label: row[1] }));
@@ -42,12 +42,12 @@ function getColGOptions() {
 }
 
 // Submit form data to 'E1' sheet (Including Column E - Numeric Input, Column F - Numeric Input, and Column G)
-function submitData(colA, colB, colC, colD, colE, colF, colG, colH) {
+function submitData(colA, colB, colC, colD, colE, colF, colG, colH, colI, colJ) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("E1");
-  sheet.appendRow([colA, colB, colC, colD, colE, colF, colG, colH, new Date()]); // Store values with timestamp
+  sheet.appendRow([colA, colB, colC, colD, colE, colF, colG, colH, colI, colJ]); // Store values with timestamp
   return "Success";
 }
-----------------------------------
+-------------------------------------------
 <!DOCTYPE html>
 <html>
 <head>
@@ -56,73 +56,73 @@ function submitData(colA, colB, colC, colD, colE, colF, colG, colH) {
     // Load Column A, Column D, and Column G options on page load
     function loadOptions() {
       google.script.run.withSuccessHandler(function(options) {
-        var colA = document.getElementById("colA");
-        colA.innerHTML = "<option value=''>Select an option</option>";
+        var colC = document.getElementById("colC");
+        colC.innerHTML = "<option value=''>Select an option</option>";
         options.forEach(value => {
           var option = document.createElement("option");
           option.value = value;
           option.text = value;
-          colA.appendChild(option);
+          colC.appendChild(option);
         });
-      }).getUniqueColA();
+      }).getUniquecolC();
 
       google.script.run.withSuccessHandler(function(options) {
-        var colD = document.getElementById("colD");
-        colD.innerHTML = "<option value=''>Select an option</option>";
+        var colF = document.getElementById("colF");
+        colF.innerHTML = "<option value=''>Select an option</option>";
         options.forEach(option => {
           var opt = document.createElement("option");
           opt.value = option.id;  // Store ID in value
           opt.text = option.label; // Show Name in dropdown
-          colD.appendChild(opt);
+          colF.appendChild(opt);
         });
-      }).getColDOptions();
+      }).getcolFOptions();
 
       google.script.run.withSuccessHandler(function(options) {
-        var colG = document.getElementById("colG");
-        colG.innerHTML = "<option value=''>Select an option</option>";
+        var colI = document.getElementById("colI");
+        colI.innerHTML = "<option value=''>Select an option</option>";
         options.forEach(option => {
           var opt = document.createElement("option");
           opt.value = option.id;  // Store ID in value
           opt.text = option.label; // Show Name in dropdown
-          colG.appendChild(opt);
+          colI.appendChild(opt);
         });
-      }).getColGOptions();
+      }).getcolIOptions();
     }
 
     // Update Column B based on selected Column A
-    function updateColB() {
-      var colAValue = document.getElementById("colA").value;
-      var colB = document.getElementById("colB");
-      colB.innerHTML = "<option value=''>Select an option</option>"; // Reset
+    function updatecolD() {
+      var colCValue = document.getElementById("colC").value;
+      var colD = document.getElementById("colD");
+      colD.innerHTML = "<option value=''>Select an option</option>"; // Reset
 
-      if (colAValue) {
+      if (colCValue) {
         google.script.run.withSuccessHandler(function(options) {
           options.forEach(value => {
             var option = document.createElement("option");
             option.value = value;
             option.text = value;
-            colB.appendChild(option);
+            colD.appendChild(option);
           });
-        }).getColBOptions(colAValue);
+        }).getcolDOptions(colCValue);
       }
-      document.getElementById("colC").innerHTML = "<option value=''>Select an option</option>"; // Reset Column C
+      document.getElementById("colE").innerHTML = "<option value=''>Select an option</option>"; // Reset Column C
     }
 
     // Update Column C based on selected Column B
-    function updateColC() {
-      var colBValue = document.getElementById("colB").value;
-      var colC = document.getElementById("colC");
-      colC.innerHTML = "<option value=''>Select an option</option>"; // Reset
+    function updatecolE() {
+      var colDValue = document.getElementById("colD").value;
+      var colE = document.getElementById("colE");
+      colE.innerHTML = "<option value=''>Select an option</option>"; // Reset
 
-      if (colBValue) {
+      if (colDValue) {
         google.script.run.withSuccessHandler(function(options) {
           options.forEach(value => {
             var option = document.createElement("option");
             option.value = value;
             option.text = value;
-            colC.appendChild(option);
+            colE.appendChild(option);
           });
-        }).getColCOptions(colBValue);
+        }).getcolEOptions(colDValue);
       }
     }
 
@@ -130,14 +130,17 @@ function submitData(colA, colB, colC, colD, colE, colF, colG, colH) {
     function submitForm(event) {
       event.preventDefault(); // Prevent page reload
 
+
       var colA = document.getElementById("colA").value;
       var colB = document.getElementById("colB").value;
       var colC = document.getElementById("colC").value;
       var colD = document.getElementById("colD").value;
-      var colE = document.getElementById("colE").value; // Get value for Column E
-      var colF = document.getElementById("colF").value; // Get value for Column F
-      var colG = document.getElementById("colG").value; // Get value for Column G
-      var colH = document.getElementById("colH").value; // Get value for Column H
+      var colE = document.getElementById("colE").value;
+      var colF = document.getElementById("colF").value;
+      var colG = document.getElementById("colG").value; // Get value for Column E
+      var colH = document.getElementById("colH").value; // Get value for Column F
+      var colI = document.getElementById("colI").value; // Get value for Column G
+      var colJ = document.getElementById("colJ").value; // Get value for Column H
 
  
 
@@ -145,20 +148,20 @@ function submitData(colA, colB, colC, colD, colE, colF, colG, colH) {
 
 
 
-function checkColF() {
-  var colFValue = parseFloat(document.getElementById("colF").value);
-  var colGField = document.getElementById("colG");
-  var colGLabel = document.getElementById("colGLabel");
+function checkcolH() {
+  var colHValue = parseFloat(document.getElementById("colH").value);
+  var colIField = document.getElementById("colI");
+  var colILabel = document.getElementById("colILabel");
 
-  if (colFValue > 0) {
-    colGField.style.display = "block"; // Show Column G
-    colGLabel.style.display = "block"; // Show Label
-    colGField.required = true; // Make Column G required
+  if (colHValue > 0) {
+    colIField.style.display = "block"; // Show Column G
+    colILabel.style.display = "block"; // Show Label
+    colIField.required = true; // Make Column G required
   } else {
-    colGField.style.display = "none"; // Hide Column G
-    colGLabel.style.display = "none"; // Hide Label
-    colGField.required = false; // Remove required attribute
-    colGField.value = ""; // Reset value if hidden
+    colIField.style.display = "none"; // Hide Column G
+    colILabel.style.display = "none"; // Hide Label
+    colIField.required = false; // Remove required attribute
+    colIField.value = ""; // Reset value if hidden
   }
 }
 
@@ -175,15 +178,15 @@ function checkColF() {
 
 
       // Validate all fields
-      if (colA && colB && colC && colD && colE) {
+      if (colA && colB && colC && colD && colE && colF && colG) {
         google.script.run.withSuccessHandler(function(response) {
           document.getElementById("message").innerText = "✅ Form submitted successfully!";
           //document.getElementById("form").reset(); // Reset form after submission
-          document.getElementById("colC").value = "";
           document.getElementById("colE").value = "";
-          document.getElementById("colF").value = "";
           document.getElementById("colG").value = "";
-        }).submitData(colA, colB, colC, colD, colE, colF, colG, colH);
+          document.getElementById("colH").value = "";
+          document.getElementById("colI").value = "";
+        }).submitData(colA, colB, colC, colD, colE, colF, colG, colH, colI, colJ);
       } else {
         document.getElementById("message").innerText = "⚠️ Please fill all fields!";
       }
@@ -196,44 +199,47 @@ function checkColF() {
 <body>
   <h1>Data Entry Form</h1>
   <form id="form" onsubmit="submitForm(event)">
+
+    <label for="colA">Column A (text Input):</label><br>
+    <input type="text" id="colA" name="colA"><br><br>
+
+    <label for="colB">Column B (text Input):</label><br>
+    <input type="text" id="colB" name="colB"><br><br>
     
-    <label for="colA">Column A:</label><br>
-    <select id="colA" name="colA" required onchange="updateColB()">
-      <option value="">Loading...</option>
-    </select><br><br>
-
-    <label for="colB">Column B:</label><br>
-    <select id="colB" name="colB" required onchange="updateColC()">
-      <option value="">Select an option</option>
-    </select><br><br>
-
     <label for="colC">Column C:</label><br>
-    <select id="colC" name="colC" required>
+    <select id="colC" name="colC" required onchange="updatecolD()">
+      <option value="">Loading...</option>
+    </select><br><br>
+
+    <label for="colD">Column D:</label><br>
+    <select id="colD" name="colD" required onchange="updatecolE()">
       <option value="">Select an option</option>
     </select><br><br>
 
-    <label for="colD">Column D (From 'Contact'!A2:A but shows 'Contact'!B2:B):</label><br>
-    <select id="colD" name="colD" required>
+    <label for="colE">Column E:</label><br>
+    <select id="colE" name="colE" required>
+      <option value="">Select an option</option>
+    </select><br><br>
+
+    <label for="colF">Column F (From 'Contact'!A2:A but shows 'Contact'!B2:B):</label><br>
+    <select id="colF" name="colF" required>
       <option value="">Loading...</option>
     </select><br><br>
 
-    <label for="colE">Column E (Numeric Input):</label><br>
-    <input type="number" id="colE" name="colE" required><br><br>
+    <label for="colG">Column G (Numeric Input):</label><br>
+    <input type="number" id="colG" name="colG" required><br><br>
 
-    <label for="colF">Column F (Numeric Input):</label><br>
-    <input type="number" id="colF" name="colF" ><br><br>
+    <label for="colH">Column H (Numeric Input):</label><br>
+    <input type="number" id="colH" name="colH" ><br><br>
 
-    <label for="colG">Column G (Choose from 'Bank'!A2:A):</label><br>
-    <select id="colG" name="colG" required onchange="checkColF()"><br><br>
+    <label for="colI">Column I (Choose from 'Bank'!A2:A):</label><br>
+    <select id="colI" name="colI" required onchange="checkcolH()"><br><br>
       <option value="">Loading...</option>
     </select><br><br>
+   
 
-
-
-    
-
-    <label for="colH">Column E (text Input):</label><br>
-    <input type="text" id="colH" name="colH"><br><br>
+    <label for="colJ">Column J (text Input):</label><br>
+    <input type="text" id="colJ" name="colJ"><br><br>
 
     <input type="submit" value="Submit">
   </form>
