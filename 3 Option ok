@@ -2,6 +2,13 @@ function doGet() {
   return HtmlService.createHtmlOutputFromFile('index');
 }
 
+// Generate unique ID using current timestamp
+function generateUniqueID() {
+  var date = new Date();
+  var formattedDate = Utilities.formatDate(date, Session.getScriptTimeZone(), "yyMMddHHmmss");
+  return formattedDate;
+}
+
 // Get unique values for Column A from 'Extra'!F2:F
 function getUniquecolC() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
@@ -47,7 +54,7 @@ function submitData(colA, colB, colC, colD, colE, colF, colG, colH, colI, colJ) 
   sheet.appendRow([colA, colB, colC, colD, colE, colF, colG, colH, colI, colJ]); // Store values with timestamp
   return "Success";
 }
--------------------------------------------
+----------------------------------------------
 <!DOCTYPE html>
 <html>
 <head>
@@ -55,6 +62,30 @@ function submitData(colA, colB, colC, colD, colE, colF, colG, colH, colI, colJ) 
   <script>
     // Load Column A, Column D, and Column G options on page load
     function loadOptions() {
+
+  // Function to format the current date and time in YYMMDDHHMMSS format
+  function generateUniqueText() {
+    const now = new Date();
+    const yy = now.getFullYear().toString().slice(-2); // Get last 2 digits of the year
+    const mm = (now.getMonth() + 1).toString().padStart(2, '0'); // Month (01-12)
+    const dd = now.getDate().toString().padStart(2, '0'); // Day (01-31)
+    const hh = now.getHours().toString().padStart(2, '0'); // Hours (00-23)
+    const min = now.getMinutes().toString().padStart(2, '0'); // Minutes (00-59)
+    const ss = now.getSeconds().toString().padStart(2, '0'); // Seconds (00-59)
+    
+    // Combine all parts into the required format
+    return `${yy}${mm}${dd}${hh}${min}${ss}`;
+  }
+
+  // Update the value every second
+  setInterval(function() {
+    document.getElementById('colA').value = generateUniqueText();
+  }, 1000); // 1000 ms = 1 second
+
+    // Set today's date as the default value
+  document.getElementById('colB').valueAsDate = new Date();
+
+      
       google.script.run.withSuccessHandler(function(options) {
         var colC = document.getElementById("colC");
         colC.innerHTML = "<option value=''>Select an option</option>";
@@ -182,6 +213,7 @@ function checkcolH() {
         google.script.run.withSuccessHandler(function(response) {
           document.getElementById("message").innerText = "✅ Form submitted successfully!";
           //document.getElementById("form").reset(); // Reset form after submission
+          document.getElementById("colA").value = "";
           document.getElementById("colE").value = "";
           document.getElementById("colG").value = "";
           document.getElementById("colH").value = "";
@@ -200,11 +232,11 @@ function checkcolH() {
   <h1>Data Entry Form</h1>
   <form id="form" onsubmit="submitForm(event)">
 
-    <label for="colA">Column A (text Input):</label><br>
-    <input type="text" id="colA" name="colA"><br><br>
+<label for="colA">Column A (colA):</label><br>
+<input type="text" id="colA" name="colA" readonly><br><br>
 
-    <label for="colB">Column B (text Input):</label><br>
-    <input type="text" id="colB" name="colB"><br><br>
+<label for="colB">Column B (colB):</label><br>
+<input type="date" id="colB" name="colB" required><br><br>
     
     <label for="colC">Column C:</label><br>
     <select id="colC" name="colC" required onchange="updatecolD()">
