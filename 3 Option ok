@@ -1,0 +1,138 @@
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('optionH');
+}
+
+// Get unique Column A options from 'Extra'!F2:F
+function getUniqueColA() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
+  var data = sheet.getRange('F2:F' + sheet.getLastRow()).getValues().flat();
+  return [...new Set(data)].filter(String); // Remove duplicates and empty values
+}
+
+// Get Column B values based on selected Column A
+function getColBOptions(colAValue) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
+  var data = sheet.getRange('F2:G' + sheet.getLastRow()).getValues();
+  var colBValues = data.filter(row => row[0] === colAValue).map(row => row[1]);
+  return [...new Set(colBValues)].filter(String); // Remove duplicates
+}
+
+// Get Column C values based on selected Column B
+function getColCOptions(colBValue) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
+  var data = sheet.getRange('G2:H' + sheet.getLastRow()).getValues();
+  var colCValues = data.filter(row => row[0] === colBValue).map(row => row[1]);
+  return [...new Set(colCValues)].filter(String); // Remove duplicates
+}
+
+// Submit form data to 'E1' sheet
+function submitData(colA, colB, colC) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("E1");
+  sheet.appendRow([colA, colB, colC, new Date()]); // Store values with timestamp
+  return "Success";
+}
+--------------------------
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Data Entry Form</title>
+  <script>
+    // Load unique Column A options from Google Sheets
+    function loadColAOptions() {
+      google.script.run.withSuccessHandler(function(options) {
+        var colA = document.getElementById("colA");
+        colA.innerHTML = "<option value=''>Select an option</option>";
+        options.forEach(value => {
+          var option = document.createElement("option");
+          option.value = value;
+          option.text = value;
+          colA.appendChild(option);
+        });
+      }).getUniqueColA();
+    }
+
+    // Update Column B based on selected Column A
+    function updateColB() {
+      var colAValue = document.getElementById("colA").value;
+      var colB = document.getElementById("colB");
+      colB.innerHTML = "<option value=''>Select an option</option>"; // Reset
+
+      if (colAValue) {
+        google.script.run.withSuccessHandler(function(options) {
+          options.forEach(value => {
+            var option = document.createElement("option");
+            option.value = value;
+            option.text = value;
+            colB.appendChild(option);
+          });
+        }).getColBOptions(colAValue);
+      }
+      document.getElementById("colC").innerHTML = "<option value=''>Select an option</option>"; // Reset Column C
+    }
+
+    // Update Column C based on selected Column B
+    function updateColC() {
+      var colBValue = document.getElementById("colB").value;
+      var colC = document.getElementById("colC");
+      colC.innerHTML = "<option value=''>Select an option</option>"; // Reset
+
+      if (colBValue) {
+        google.script.run.withSuccessHandler(function(options) {
+          options.forEach(value => {
+            var option = document.createElement("option");
+            option.value = value;
+            option.text = value;
+            colC.appendChild(option);
+          });
+        }).getColCOptions(colBValue);
+      }
+    }
+
+    // Handle form submission and show success message
+    function submitForm(event) {
+      event.preventDefault(); // Prevent page reload
+
+      var colA = document.getElementById("colA").value;
+      var colB = document.getElementById("colB").value;
+      var colC = document.getElementById("colC").value;
+
+      if (colA && colB && colC) {
+        google.script.run.withSuccessHandler(function(response) {
+          document.getElementById("message").innerText = "✅ Form submitted successfully!";
+          document.getElementById("form").reset(); // Reset form after submission
+        }).submitData(colA, colB, colC);
+      } else {
+        document.getElementById("message").innerText = "⚠️ Please fill all fields!";
+      }
+    }
+
+    // Load Column A options on page load
+    window.onload = loadColAOptions;
+  </script>
+</head>
+<body>
+  <h1>Data Entry Form</h1>
+  <form id="form" onsubmit="submitForm(event)">
+    
+    <label for="colA">Column A:</label><br>
+    <select id="colA" name="colA" required onchange="updateColB()">
+      <option value="">Loading...</option>
+    </select><br><br>
+
+    <label for="colB">Column B:</label><br>
+    <select id="colB" name="colB" required onchange="updateColC()">
+      <option value="">Select an option</option>
+    </select><br><br>
+
+    <label for="colC">Column C:</label><br>
+    <select id="colC" name="colC" required>
+      <option value="">Select an option</option>
+    </select><br><br>
+
+    <input type="submit" value="Submit">
+  </form>
+
+  <p id="message" style="font-weight: bold; color: green;"></p> <!-- Success message will appear here -->
+
+</body>
+</html>
