@@ -36,8 +36,9 @@ function getColDOptions() {
 // Get Column G options from 'Bank'!A2:A
 function getColGOptions() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Bank');
-  var data = sheet.getRange('A2:A' + sheet.getLastRow()).getValues().flat();
-  return [...new Set(data)].filter(String); // Remove empty values
+  var data = sheet.getRange('A2:B' + sheet.getLastRow()).getValues();
+  var options = data.map(row => ({ id: row[0], label: row[1] }));
+  return options.filter(option => option.id && option.label); // Remove empty values
 }
 
 // Submit form data to 'E1' sheet (Including Column E - Numeric Input, Column F - Numeric Input, and Column G)
@@ -46,7 +47,7 @@ function submitData(colA, colB, colC, colD, colE, colF, colG) {
   sheet.appendRow([colA, colB, colC, colD, colE, colF, colG, new Date()]); // Store values with timestamp
   return "Success";
 }
--------------------------------------------------
+--------------------------------------
 <!DOCTYPE html>
 <html>
 <head>
@@ -79,11 +80,11 @@ function submitData(colA, colB, colC, colD, colE, colF, colG) {
       google.script.run.withSuccessHandler(function(options) {
         var colG = document.getElementById("colG");
         colG.innerHTML = "<option value=''>Select an option</option>";
-        options.forEach(value => {
-          var option = document.createElement("option");
-          option.value = value;
-          option.text = value;
-          colG.appendChild(option);
+        options.forEach(option => {
+          var opt = document.createElement("option");
+          opt.value = option.id;  // Store ID in value
+          opt.text = option.label; // Show Name in dropdown
+          colG.appendChild(opt);
         });
       }).getColGOptions();
     }
