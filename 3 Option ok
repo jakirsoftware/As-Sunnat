@@ -42,12 +42,12 @@ function getColGOptions() {
 }
 
 // Submit form data to 'E1' sheet (Including Column E - Numeric Input, Column F - Numeric Input, and Column G)
-function submitData(colA, colB, colC, colD, colE, colF, colG) {
+function submitData(colA, colB, colC, colD, colE, colF, colG, colH) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("E1");
-  sheet.appendRow([colA, colB, colC, colD, colE, colF, colG, new Date()]); // Store values with timestamp
+  sheet.appendRow([colA, colB, colC, colD, colE, colF, colG, colH, new Date()]); // Store values with timestamp
   return "Success";
 }
---------------------------------------
+---------------------------------
 <!DOCTYPE html>
 <html>
 <head>
@@ -137,13 +137,14 @@ function submitData(colA, colB, colC, colD, colE, colF, colG) {
       var colE = document.getElementById("colE").value; // Get value for Column E
       var colF = document.getElementById("colF").value; // Get value for Column F
       var colG = document.getElementById("colG").value; // Get value for Column G
+      var colH = document.getElementById("colH").value; // Get value for Column H
 
       // Validate all fields
-      if (colA && colB && colC && colD && colE && colF && colG) {
+      if (colA && colB && colC && colD && colE && colF && colG && colH) {
         google.script.run.withSuccessHandler(function(response) {
           document.getElementById("message").innerText = "✅ Form submitted successfully!";
           document.getElementById("form").reset(); // Reset form after submission
-        }).submitData(colA, colB, colC, colD, colE, colF, colG);
+        }).submitData(colA, colB, colC, colD, colE, colF, colG, colH);
       } else {
         document.getElementById("message").innerText = "⚠️ Please fill all fields!";
       }
@@ -187,6 +188,9 @@ function submitData(colA, colB, colC, colD, colE, colF, colG) {
     <select id="colG" name="colG" required>
       <option value="">Loading...</option>
     </select><br><br>
+
+    <label for="colH">Column E (text Input):</label><br>
+    <input type="text" id="colH" name="colH"><br><br>
 
     <input type="submit" value="Submit">
   </form>
