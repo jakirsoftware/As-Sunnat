@@ -1,56 +1,58 @@
-// Get unique options for Column A
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('index');
+}
+
+// Get unique values for Column A from 'Extra'!F2:F
 function getUniqueColA() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
-  var data = sheet.getRange('F2:F' + sheet.getLastRow()).getValues();
-  var uniqueData = [...new Set(data.flat())];
-  return uniqueData;
+  var data = sheet.getRange('F2:F' + sheet.getLastRow()).getValues().flat();
+  return [...new Set(data)].filter(String);
 }
 
-// Get Column B options based on Column A selection
+// Get Column B options based on selected Column A
 function getColBOptions(colAValue) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
-  var data = sheet.getRange('F2:H' + sheet.getLastRow()).getValues();
-  var options = data.filter(row => row[0] === colAValue).map(row => row[1]);
-  return options;
+  var data = sheet.getRange('F2:G' + sheet.getLastRow()).getValues();
+  var colBValues = data.filter(row => row[0] === colAValue).map(row => row[1]);
+  return [...new Set(colBValues)].filter(String);
 }
 
-// Get Column C options based on Column B selection
+// Get Column C options based on selected Column B
 function getColCOptions(colBValue) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
-  var data = sheet.getRange('F2:I' + sheet.getLastRow()).getValues();
-  var options = data.filter(row => row[1] === colBValue).map(row => row[2]);
-  return options;
+  var data = sheet.getRange('G2:H' + sheet.getLastRow()).getValues();
+  var colCValues = data.filter(row => row[0] === colBValue).map(row => row[1]);
+  return [...new Set(colCValues)].filter(String);
 }
 
-// Get Column D options (From 'Contact'!A2:A but shows 'Contact'!B2:B)
+// Get Column D values (ID) and display labels (Name) from 'Contact'!A2:A (ID) and 'Contact'!B2:B (Label)
 function getColDOptions() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Contact');
   var data = sheet.getRange('A2:B' + sheet.getLastRow()).getValues();
   var options = data.map(row => ({ id: row[0], label: row[1] }));
-  return options;
+  return options.filter(option => option.id && option.label); // Remove empty values
 }
 
-// Get Column G options (ID from 'Bank'!A2:A and label from 'Bank'!B2:B)
+// Get Column G options from 'Bank'!A2:A
 function getColGOptions() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Bank');
-  var data = sheet.getRange('A2:B' + sheet.getLastRow()).getValues();
-  var options = data.map(row => ({ id: row[0], label: row[1] }));
-  return options.filter(option => option.id && option.label); // Filter out empty rows
+  var data = sheet.getRange('A2:A' + sheet.getLastRow()).getValues().flat();
+  return [...new Set(data)].filter(String); // Remove empty values
 }
 
-// Submit data to the "Data" sheet
+// Submit form data to 'E1' sheet (Including Column E - Numeric Input, Column F - Numeric Input, and Column G)
 function submitData(colA, colB, colC, colD, colE, colF, colG) {
-  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Data');
-  sheet.appendRow([colA, colB, colC, colD, colE, colF, colG]);
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("E1");
+  sheet.appendRow([colA, colB, colC, colD, colE, colF, colG, new Date()]); // Store values with timestamp
   return "Success";
 }
-------------------------------
+-------------------------------------------------
 <!DOCTYPE html>
 <html>
 <head>
   <title>Data Entry Form</title>
   <script>
-    // Load options for Column A, Column D, and Column G
+    // Load Column A, Column D, and Column G options on page load
     function loadOptions() {
       google.script.run.withSuccessHandler(function(options) {
         var colA = document.getElementById("colA");
@@ -69,7 +71,7 @@ function submitData(colA, colB, colC, colD, colE, colF, colG) {
         options.forEach(option => {
           var opt = document.createElement("option");
           opt.value = option.id;  // Store ID in value
-          opt.text = option.label; // Show label in dropdown
+          opt.text = option.label; // Show Name in dropdown
           colD.appendChild(opt);
         });
       }).getColDOptions();
@@ -77,10 +79,10 @@ function submitData(colA, colB, colC, colD, colE, colF, colG) {
       google.script.run.withSuccessHandler(function(options) {
         var colG = document.getElementById("colG");
         colG.innerHTML = "<option value=''>Select an option</option>";
-        options.forEach(option => {
+        options.forEach(value => {
           var option = document.createElement("option");
-          option.value = option.id;  // Use ID for value
-          option.text = option.label; // Show label in dropdown
+          option.value = value;
+          option.text = value;
           colG.appendChild(option);
         });
       }).getColGOptions();
@@ -90,7 +92,7 @@ function submitData(colA, colB, colC, colD, colE, colF, colG) {
     function updateColB() {
       var colAValue = document.getElementById("colA").value;
       var colB = document.getElementById("colB");
-      colB.innerHTML = "<option value=''>Select an option</option>"; // Reset Column B
+      colB.innerHTML = "<option value=''>Select an option</option>"; // Reset
 
       if (colAValue) {
         google.script.run.withSuccessHandler(function(options) {
@@ -109,7 +111,7 @@ function submitData(colA, colB, colC, colD, colE, colF, colG) {
     function updateColC() {
       var colBValue = document.getElementById("colB").value;
       var colC = document.getElementById("colC");
-      colC.innerHTML = "<option value=''>Select an option</option>"; // Reset Column C
+      colC.innerHTML = "<option value=''>Select an option</option>"; // Reset
 
       if (colBValue) {
         google.script.run.withSuccessHandler(function(options) {
@@ -120,20 +122,6 @@ function submitData(colA, colB, colC, colD, colE, colF, colG) {
             colC.appendChild(option);
           });
         }).getColCOptions(colBValue);
-      }
-    }
-
-    // Show Column G if Column F > 0 and make it required
-    function checkColF() {
-      var colFValue = parseFloat(document.getElementById("colF").value);
-      var colGField = document.getElementById("colG");
-      
-      if (colFValue > 0) {
-        colGField.style.display = "block"; // Show Column G
-        colGField.required = true; // Make Column G required
-      } else {
-        colGField.style.display = "none"; // Hide Column G
-        colGField.required = false; // Remove the required attribute
       }
     }
 
@@ -150,7 +138,7 @@ function submitData(colA, colB, colC, colD, colE, colF, colG) {
       var colG = document.getElementById("colG").value; // Get value for Column G
 
       // Validate all fields
-      if (colA && colB && colC && colD && colE && colF && (colF <= 0 || colG)) {
+      if (colA && colB && colC && colD && colE && colF && colG) {
         google.script.run.withSuccessHandler(function(response) {
           document.getElementById("message").innerText = "✅ Form submitted successfully!";
           document.getElementById("form").reset(); // Reset form after submission
@@ -192,10 +180,10 @@ function submitData(colA, colB, colC, colD, colE, colF, colG) {
     <input type="number" id="colE" name="colE" required><br><br>
 
     <label for="colF">Column F (Numeric Input):</label><br>
-    <input type="number" id="colF" name="colF" required onchange="checkColF()"><br><br>
+    <input type="number" id="colF" name="colF" required><br><br>
 
-    <label for="colG" style="display:none;">Column G (Choose from 'Bank'!A2:A but show 'Bank'!B2:B):</label><br>
-    <select id="colG" name="colG" style="display:none;">
+    <label for="colG">Column G (Choose from 'Bank'!A2:A):</label><br>
+    <select id="colG" name="colG" required>
       <option value="">Loading...</option>
     </select><br><br>
 
