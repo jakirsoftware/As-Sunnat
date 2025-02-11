@@ -47,7 +47,7 @@ function submitData(colA, colB, colC, colD, colE, colF, colG, colH) {
   sheet.appendRow([colA, colB, colC, colD, colE, colF, colG, colH, new Date()]); // Store values with timestamp
   return "Success";
 }
----------------------------------
+----------------------------
 <!DOCTYPE html>
 <html>
 <head>
@@ -140,10 +140,12 @@ function submitData(colA, colB, colC, colD, colE, colF, colG, colH) {
       var colH = document.getElementById("colH").value; // Get value for Column H
 
       // Validate all fields
-      if (colA && colB && colC && colD && colE && colF && colG && colH) {
+      if (colA && colB && colC && colD && colE) {
         google.script.run.withSuccessHandler(function(response) {
           document.getElementById("message").innerText = "✅ Form submitted successfully!";
-          document.getElementById("form").reset(); // Reset form after submission
+          //document.getElementById("form").reset(); // Reset form after submission
+          document.getElementById("colC").value = "";
+          document.getElementById("colE").value = "";
         }).submitData(colA, colB, colC, colD, colE, colF, colG, colH);
       } else {
         document.getElementById("message").innerText = "⚠️ Please fill all fields!";
@@ -182,10 +184,10 @@ function submitData(colA, colB, colC, colD, colE, colF, colG, colH) {
     <input type="number" id="colE" name="colE" required><br><br>
 
     <label for="colF">Column F (Numeric Input):</label><br>
-    <input type="number" id="colF" name="colF" required><br><br>
+    <input type="number" id="colF" name="colF" ><br><br>
 
     <label for="colG">Column G (Choose from 'Bank'!A2:A):</label><br>
-    <select id="colG" name="colG" required>
+    <select id="colG" name="colG" >
       <option value="">Loading...</option>
     </select><br><br>
 
