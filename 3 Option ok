@@ -47,7 +47,7 @@ function submitData(colA, colB, colC, colD, colE, colF, colG, colH) {
   sheet.appendRow([colA, colB, colC, colD, colE, colF, colG, colH, new Date()]); // Store values with timestamp
   return "Success";
 }
-----------------------------
+----------------------------------
 <!DOCTYPE html>
 <html>
 <head>
@@ -139,6 +139,41 @@ function submitData(colA, colB, colC, colD, colE, colF, colG, colH) {
       var colG = document.getElementById("colG").value; // Get value for Column G
       var colH = document.getElementById("colH").value; // Get value for Column H
 
+ 
+
+
+
+
+
+function checkColF() {
+  var colFValue = parseFloat(document.getElementById("colF").value);
+  var colGField = document.getElementById("colG");
+  var colGLabel = document.getElementById("colGLabel");
+
+  if (colFValue > 0) {
+    colGField.style.display = "block"; // Show Column G
+    colGLabel.style.display = "block"; // Show Label
+    colGField.required = true; // Make Column G required
+  } else {
+    colGField.style.display = "none"; // Hide Column G
+    colGLabel.style.display = "none"; // Hide Label
+    colGField.required = false; // Remove required attribute
+    colGField.value = ""; // Reset value if hidden
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
       // Validate all fields
       if (colA && colB && colC && colD && colE) {
         google.script.run.withSuccessHandler(function(response) {
@@ -146,6 +181,8 @@ function submitData(colA, colB, colC, colD, colE, colF, colG, colH) {
           //document.getElementById("form").reset(); // Reset form after submission
           document.getElementById("colC").value = "";
           document.getElementById("colE").value = "";
+          document.getElementById("colF").value = "";
+          document.getElementById("colG").value = "";
         }).submitData(colA, colB, colC, colD, colE, colF, colG, colH);
       } else {
         document.getElementById("message").innerText = "⚠️ Please fill all fields!";
@@ -187,9 +224,13 @@ function submitData(colA, colB, colC, colD, colE, colF, colG, colH) {
     <input type="number" id="colF" name="colF" ><br><br>
 
     <label for="colG">Column G (Choose from 'Bank'!A2:A):</label><br>
-    <select id="colG" name="colG" >
+    <select id="colG" name="colG" required onchange="checkColF()"><br><br>
       <option value="">Loading...</option>
     </select><br><br>
+
+
+
+    
 
     <label for="colH">Column E (text Input):</label><br>
     <input type="text" id="colH" name="colH"><br><br>
