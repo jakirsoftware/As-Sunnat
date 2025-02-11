@@ -1,0 +1,221 @@
+function doGet() {
+  return HtmlService.createHtmlOutputFromFile('index')
+      .setTitle('Data Entry Form');
+}
+
+// Generate unique ID using current timestamp
+function generateUniqueID() {
+  var date = new Date();
+  var formattedDate = Utilities.formatDate(date, Session.getScriptTimeZone(), "yyMMddHHmmss");
+  return formattedDate;
+}
+
+// Submit data to Google Sheet
+function submitData(id, date, colA, colB, colC, colD, colE, colF, colG) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Data');
+  
+  if (!sheet) {
+    throw new Error('Sheet "Data" not found!');
+  }
+  
+  // Append data to the sheet
+  sheet.appendRow([id, date, colA, colB, colC, colD, colE, colF, colG]);
+  
+  return "✅ Form submitted successfully!";
+}
+
+// Fetch unique values for Column A from 'Extra'!F2:F
+function getUniqueColA() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
+  var values = sheet.getRange("F2:F").getValues().flat().filter(String);
+  return [...new Set(values)];
+}
+
+// Fetch options for Column B based on Column A
+function getColBOptions(selectedColA) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
+  var data = sheet.getRange("F2:H" + sheet.getLastRow()).getValues();
+  return data.filter(row => row[0] === selectedColA).map(row => row[1]);
+}
+
+// Fetch options for Column C based on Column B
+function getColCOptions(selectedColB) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Extra');
+  var data = sheet.getRange("G2:H" + sheet.getLastRow()).getValues();
+  return data.filter(row => row[0] === selectedColB).map(row => row[1]);
+}
+
+// Fetch options for Column D (Contact)
+function getColDOptions() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Contact');
+  var ids = sheet.getRange("A2:A").getValues().flat();
+  var labels = sheet.getRange("B2:B").getValues().flat();
+  return ids.map((id, index) => ({ id: id, label: labels[index] }));
+}
+
+// Fetch options for Column G (Bank)
+function getColGOptions() {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Bank');
+  var ids = sheet.getRange("A2:A").getValues().flat();
+  var labels = sheet.getRange("B2:B").getValues().flat();
+  return ids.map((id, index) => ({ id: id, label: labels[index] }));
+}
+-----------------------------
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Data Entry Form</title>
+  <script>
+    function loadOptions() {
+      // Set today's date and generate unique ID
+      document.getElementById("date").valueAsDate = new Date(); // Set today's date
+      google.script.run.withSuccessHandler(function(id) {
+        document.getElementById("id").value = id; // Set generated ID
+      }).generateUniqueID();
+      
+      google.script.run.withSuccessHandler(populateColA).getUniqueColA();
+      google.script.run.withSuccessHandler(populateColD).getColDOptions();
+      google.script.run.withSuccessHandler(populateColG).getColGOptions();
+    }
+
+    function populateColA(options) {
+      var colA = document.getElementById("colA");
+      colA.innerHTML = "<option value=''>Select</option>";
+      options.forEach(value => {
+        var option = document.createElement("option");
+        option.value = value;
+        option.text = value;
+        colA.appendChild(option);
+      });
+    }
+
+    function populateColD(options) {
+      var colD = document.getElementById("colD");
+      colD.innerHTML = "<option value=''>Select</option>";
+      options.forEach(option => {
+        var opt = document.createElement("option");
+        opt.value = option.id;
+        opt.text = option.label;
+        colD.appendChild(opt);
+      });
+    }
+
+    function populateColG(options) {
+      var colG = document.getElementById("colG");
+      colG.innerHTML = "<option value=''>Select</option>";
+      options.forEach(option => {
+        var opt = document.createElement("option");
+        opt.value = option.id;
+        opt.text = option.label;
+        colG.appendChild(opt);
+      });
+    }
+
+    function updateColB() {
+      var colAValue = document.getElementById("colA").value;
+      google.script.run.withSuccessHandler(populateColB).getColBOptions(colAValue);
+      document.getElementById("colC").innerHTML = "<option value=''>Select</option>";
+    }
+
+    function populateColB(options) {
+      var colB = document.getElementById("colB");
+      colB.innerHTML = "<option value=''>Select</option>";
+      options.forEach(value => {
+        var option = document.createElement("option");
+        option.value = value;
+        option.text = value;
+        colB.appendChild(option);
+      });
+    }
+
+    function updateColC() {
+      var colBValue = document.getElementById("colB").value;
+      google.script.run.withSuccessHandler(populateColC).getColCOptions(colBValue);
+    }
+
+    function populateColC(options) {
+      var colC = document.getElementById("colC");
+      colC.innerHTML = "<option value=''>Select</option>";
+      options.forEach(value => {
+        var option = document.createElement("option");
+        option.value = value;
+        option.text = value;
+        colC.appendChild(option);
+      });
+    }
+
+    function checkColF() {
+      var colFValue = parseFloat(document.getElementById("colF").value);
+      var colGField = document.getElementById("colGField");
+      colGField.style.display = colFValue > 0 ? "block" : "none";
+      document.getElementById("colG").required = colFValue > 0;
+    }
+
+    function submitForm(event) {
+      event.preventDefault(); // Prevent the form from submitting the traditional way
+
+      // Get values from the form
+      var id = document.getElementById("id").value;
+      var date = document.getElementById("date").value;
+      var colA = document.getElementById("colA").value;
+      var colB = document.getElementById("colB").value;
+      var colC = document.getElementById("colC").value;
+      var colD = document.getElementById("colD").value;
+      var colE = document.getElementById("colE").value;
+      var colF = document.getElementById("colF").value;
+      var colG = document.getElementById("colG").value;
+
+      // Ensure all fields are filled before submission
+      if (!date || !colA || !colB || !colC || !colD || !colE || !colF || (colF > 0 && !colG)) {
+        document.getElementById("message").innerText = "⚠️ Please fill all required fields!";
+        return;
+      }
+
+      // Call the Apps Script function to submit data
+      google.script.run.withSuccessHandler(function(response) {
+        document.getElementById("message").innerText = response; // Display success message
+        document.getElementById("form").reset(); // Reset form after submission
+        loadOptions(); // Reload the options (e.g., new ID)
+      }).submitData(id, date, colA, colB, colC, colD, colE, colF, colG);
+    }
+
+    window.onload = loadOptions;
+  </script>
+</head>
+<body>
+  <h1>Data Entry Form</h1>
+  <form id="form" onsubmit="submitForm(event)">
+    <label>ID:</label>
+    <input type="text" id="id" readonly><br><br>
+
+    <label>Date:</label>
+    <input type="date" id="date" required><br><br>
+
+    <label>Column A:</label>
+    <select id="colA" onchange="updateColB()" required></select><br><br>
+
+    <label>Column B:</label>
+    <select id="colB" onchange="updateColC()" required></select><br><br>
+
+    <label>Column C:</label>
+    <select id="colC" required></select><br><br>
+
+    <label>Column D:</label>
+    <select id="colD" required></select><br><br>
+
+    <label>Column E:</label>
+    <input type="number" id="colE" required><br><br>
+
+    <label>Column F:</label>
+    <input type="number" id="colF" onchange="checkColF()" required><br><br>
+
+    <div id="colGField" style="display:none;">
+      <label>Column G:</label>
+      <select id="colG"></select><br><br>
+    </div>
+
+    <input type="submit" value="Submit">
+  </form>
+  <p id="message" style="color: green;"></p>
+</body>
+</html>
